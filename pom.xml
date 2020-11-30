@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>fhict</groupId>
+    <artifactId>S3-SE-SNAKE</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>client</module>
+        <module>server</module>
+    </modules>
+
+    <properties>
+        <codeVersion>11</codeVersion>
+        <openfxVersion>11.0.2</openfxVersion>
+        <mavenVersion>3.8.0</mavenVersion>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <sonar.tests>src/test</sonar.tests>
+        <sonar.junit.reportPaths>${basedir}/target/test-classes</sonar.junit.reportPaths>
+    </properties>
+</project>
