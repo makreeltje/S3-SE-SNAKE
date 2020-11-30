@@ -30,7 +30,7 @@ jobs:
       with:
         java-version: 11
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn -B clean install
     - name: Setup sonarqube
       uses: warchant/setup-sonar-scanner@v3
     - name: Run sonarscanner
