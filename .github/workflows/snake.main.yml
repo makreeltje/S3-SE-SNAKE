@@ -1,8 +1,8 @@
-name: Build and deploy
+name: Java CI with Maven
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
     test:
@@ -19,7 +19,7 @@ jobs:
         run: mvn -B clean package -DskipTests
       - name: Maven Verify
         run: mvn -B clean verify -Pintegration-test
-        
+
   sonar:
     name: SonarQube
     runs-on: ubuntu-latest
