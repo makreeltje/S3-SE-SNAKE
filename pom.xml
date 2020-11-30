@@ -21,15 +21,41 @@
         <maven.compiler.target>11</maven.compiler.target>
         <sonar.tests>src/test</sonar.tests>
         <sonar.junit.reportPaths>${basedir}/target/test-classes</sonar.junit.reportPaths>
+        <sonar.host.url>https://sonarqube.meelsnet.nl/</sonar.host.url>
     </properties>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${mavenVersion}</version>
+                <configuration>
+                    <release>${codeVersion}</release>
+                    <source>${codeVersion}</source>
+                    <target>${codeVersion}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.4</version>
+                <configuration>
+                    <mainClass>fhict</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.7.0.1746</version>
             </plugin>
         </plugins>
     </build>
+
 
 </project>

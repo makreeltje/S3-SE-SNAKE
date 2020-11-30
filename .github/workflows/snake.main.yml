@@ -19,6 +19,15 @@ jobs:
       run: mvn -B clean package -DskipTests
     - name: Maven Verify
       run: mvn -B clean verify -Pintegration-test
+    - name: Run sonarscanner
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: sonar-scanner
+        -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
+        -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
+        -Dsonar.projectKey=SnakeXI
+        -Dsonar.tests=test
+        -Dsonar.sourceEncoding=UTF-8
 
   sonar:
     name: SonarQube
@@ -29,14 +38,10 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
-    - name: Setup sonarqube
-      uses: warchant/setup-sonar-scanner@v3
-    - name: Run sonarscanner
+    - name: Run Sonarscanner
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: sonar-scanner
+      run: mvn clean verify sonar:sonar
         -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
         -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
         -Dsonar.projectKey=SnakeXI
