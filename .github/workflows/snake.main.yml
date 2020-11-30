@@ -25,11 +25,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: SonarQube Scan
-      uses: kitabisa/sonarqube-action@master
-      with:
-        host: ${{ secrets.SONARQUBE_HOST }}
-        login: ${{ secrets.SONARQUBE_TOKEN }}
+    - name: Setup sonarqube
+      uses: warchant/setup-sonar-scanner@v3
+    - name: Run sonarqube
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: sonar-scanner
+        -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
+        -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
+        -Dsonar.projectKey=SnakeXI
+        -Dsonar.tests=test
+        -Dsonar.sourceEncoding=UTF-8
         
   build:
     name: Build
