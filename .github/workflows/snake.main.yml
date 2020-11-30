@@ -31,8 +31,8 @@ jobs:
         java-version: 11
     - name: Maven Package
       run: mvn -B clean package -DskipTests
-      uses: warchant/setup-sonar-scanner@v3
     - name: Run sonarqube
+      uses: warchant/setup-sonar-scanner@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: sonar-scanner
