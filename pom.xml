@@ -22,4 +22,14 @@
         <sonar.tests>src/test</sonar.tests>
         <sonar.junit.reportPaths>${basedir}/target/test-classes</sonar.junit.reportPaths>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
