@@ -31,8 +31,14 @@ jobs:
         java-version: 11
     - name: Maven Package
       run: mvn -B clean package -DskipTests
-    - name: Run sonarqube
+    - name: Setup sonarqube
       uses: warchant/setup-sonar-scanner@v3
+    - name: Run sonarscanner
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: sonar-scanner -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }} -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }} -Dsonar.projectKey=SnakeXI -Dsonar.tests=test -Dsonar.sourceEncoding=UTF-8
+      run: sonar-scanner
+        -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
+        -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
+        -Dsonar.projectKey=SnakeXI
+        -Dsonar.tests=test
+        -Dsonar.sourceEncoding=UTF-8
