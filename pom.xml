@@ -11,6 +11,8 @@
     <modules>
         <module>client</module>
         <module>server</module>
+        <module>shared</module>
+        <module>communicator</module>
     </modules>
 
     <properties>
