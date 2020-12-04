@@ -10,6 +10,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -28,13 +30,28 @@ public class SnakeClient extends Application implements Observer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnakeClient.class);
 
-    private static final int BUTTON_WIDTH = 200;
     private static final int FRUITS = 3;
     private static final int TICKS = 100;
 
     private static final int RECTANGLE_SIZE = 20;
-    private final int NR_SQUARES_HORIZONTAL = 75;
-    private final int NR_SQUARES_VERTICAL = 40;
+    private static final int NR_SQUARES_HORIZONTAL = 75;
+    private static final int NR_SQUARES_VERTICAL = 40;
+
+    private static final int TEXT_INPUT_WIDTH = 400;
+    private static final int BUTTON_WIDTH = 200;
+    private static final String BUTTON_LAYOUT = "-fx-border-color: #ffffff; -fx-border-width: 3px; -fx-background-color: transparent; -fx-text-fill: #BEBEBE; -fx-font: 2em Consolas;";
+
+    private VBox mainMenu = new VBox(20);
+    private VBox loginMenu = new VBox(20);
+    private TextField txtUsername = new TextField();
+    private PasswordField txtPassword = new PasswordField();
+    private Button btnLogin = new Button("Login");
+
+    private Button btnSinglePlayer = new Button("Single Player");
+    private Button btnMultiPlayer = new Button("Multi Player");
+    private Button btnHistory = new Button("History");
+    private Button btnLogout = new Button("Exit");
+
 
     private Rectangle[][] playingFieldArea;
 
@@ -47,6 +64,7 @@ public class SnakeClient extends Application implements Observer {
 
         Group root = new Group();
         Scene scene = new Scene(root, NR_SQUARES_HORIZONTAL * RECTANGLE_SIZE,NR_SQUARES_VERTICAL * RECTANGLE_SIZE);
+        scene.getStylesheets().add(this.getClass().getClassLoader().getResource("style.css").toExternalForm());
 
         // Main playing field
         playingFieldArea = new Rectangle[NR_SQUARES_HORIZONTAL][NR_SQUARES_VERTICAL];
@@ -65,16 +83,9 @@ public class SnakeClient extends Application implements Observer {
         }
 
         Label label = new Label("Snake XI");
-        label.setStyle("-fx-text-fill: #BEBEBE; -fx-font: 5em Consolas;");
+        label.setStyle("-fx-text-fill: #BEBEBE; -fx-font: 5em Consolas; -fx-padding: 0 0 500 0");
 
-        Button btnSinglePlayer = new Button("Single Player");
-        btnSinglePlayer.setStyle("-fx-border-color: #ffffff; -fx-border-width: 3px; -fx-background-color: transparent; -fx-text-fill: #BEBEBE; -fx-font: 2em Consolas;");
-        btnSinglePlayer.setPrefWidth(BUTTON_WIDTH);
-
-        Button btnMultiPlayer = new Button("Multi Player");
-        btnMultiPlayer.setStyle("-fx-border-color: #ffffff; -fx-border-width: 3px; -fx-background-color: transparent; -fx-text-fill: #BEBEBE; -fx-font: 2em Consolas;");
-        btnMultiPlayer.setPrefWidth(BUTTON_WIDTH);
-        btnMultiPlayer.setOnAction((EventHandler) event -> {
+        btnLogin.setOnAction(event -> {
             try {
                 registerPlayer();
             } catch (Exception e) {
@@ -82,20 +93,21 @@ public class SnakeClient extends Application implements Observer {
             }
         });
 
-        Button btnHistory = new Button("History");
-        btnHistory.setStyle("-fx-border-color: #ffffff; -fx-border-width: 3px; -fx-background-color: transparent; -fx-text-fill: #BEBEBE; -fx-font: 2em Consolas;");
+        txtUsername.setPromptText("Username...");
+        txtPassword.setPromptText("Password...");
+        btnSinglePlayer.setPrefWidth(BUTTON_WIDTH);
+        btnMultiPlayer.setPrefWidth(BUTTON_WIDTH);
         btnHistory.setPrefWidth(BUTTON_WIDTH);
-
-        Button btnLogout = new Button("Logout");
-        btnLogout.setStyle("-fx-border-color: #ffffff; -fx-border-width: 3px; -fx-background-color: transparent; -fx-text-fill: #BEBEBE; -fx-font: 2em Consolas;");
         btnLogout.setPrefWidth(BUTTON_WIDTH);
 
-        VBox vBox = new VBox(20);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.getChildren().addAll(label, btnSinglePlayer, btnMultiPlayer, btnHistory, btnLogout);
+        loginMenu.setAlignment(Pos.CENTER);
+        loginMenu.getChildren().addAll(txtUsername, txtPassword, btnLogin);
+        mainMenu.setAlignment(Pos.CENTER);
+        mainMenu.getChildren().addAll(btnSinglePlayer, btnMultiPlayer, btnHistory, btnLogout);
+        mainMenu.setVisible(false);
 
         StackPane glass = new StackPane();
-        glass.getChildren().addAll(vBox);
+        glass.getChildren().addAll(label, loginMenu, mainMenu);
 
         glass.setStyle("-fx-background-color: rgba(10, 10, 10, 0.4);");
         glass.setMinWidth(scene.getWidth() - 80);
@@ -113,9 +125,12 @@ public class SnakeClient extends Application implements Observer {
     }
 
     private void registerPlayer() {
-        communicator = SnakeClientWebSocket.getInstance();
+        loginMenu.setVisible(false);
+        mainMenu.setVisible(true);
+
+        /*communicator = SnakeClientWebSocket.getInstance();
         communicator.addObserver(this);
-        communicator.start();
+        communicator.start();*/
     }
 
     @Override

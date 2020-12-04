@@ -1,0 +1,22 @@
+.button {
+    -fx-border-color: #ffffff;
+    -fx-border-width: 3px;
+    -fx-background-color: transparent;
+    -fx-text-fill: #BEBEBE;
+    -fx-font: 2em Consolas;
+    -fx-max-width: 200;
+}
+
+.button:hover {
+    -fx-border-color: #696969;
+    -fx-text-fill: #696969;
+}
+
+.text-field {
+    -fx-border-color: #ffffff;
+    -fx-border-width: 3px;
+    -fx-background-color: transparent;
+    -fx-text-fill: #BEBEBE;
+    -fx-font: 2em Consolas;
+    -fx-max-width: 400;
+}
