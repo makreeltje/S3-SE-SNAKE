@@ -2,8 +2,6 @@ package communicator;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import communicatorshared.CommunicatorWebSocketMessage;
-import communicatorshared.CommunicatorWebSocketMessageOperation;
 import shared.SnakeWebSocketMessage;
 import shared.SnakeWebSocketMessageOperation;
 
