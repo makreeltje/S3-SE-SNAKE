@@ -1,10 +1,9 @@
 package client;
 
-import communicator.Snake;
-import communicator.SnakeClientWebSocket;
+import communicator.SnakeCommunicator;
+import communicator.SnakeCommunicatorClientWebSocket;
 import javafx.application.Application;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -13,22 +12,23 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.layout.HBox;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.sun.java.accessibility.util.AWTEventMonitor.addKeyListener;
 
 public class SnakeClient extends Application implements Observer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SnakeClient.class);
+    private static final Logger LOGGER = Logger.getLogger(SnakeClient.class.getName());
 
     private static final int FRUITS = 3;
     private static final int TICKS = 100;
@@ -43,19 +43,22 @@ public class SnakeClient extends Application implements Observer {
 
     private VBox mainMenu = new VBox(20);
     private VBox loginMenu = new VBox(20);
+    private StackPane layout = new StackPane();
+
     private TextField txtUsername = new TextField();
     private PasswordField txtPassword = new PasswordField();
-    private Button btnLogin = new Button("Login");
 
+    private Button btnLogin = new Button("Login");
     private Button btnSinglePlayer = new Button("Single Player");
     private Button btnMultiPlayer = new Button("Multi Player");
     private Button btnHistory = new Button("History");
     private Button btnLogout = new Button("Exit");
 
-
     private Rectangle[][] playingFieldArea;
 
-    private Snake communicator = null;
+    private SnakeCommunicator communicator = null;
+
+    private String username;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -89,14 +92,31 @@ public class SnakeClient extends Application implements Observer {
             try {
                 registerPlayer();
             } catch (Exception e) {
-                LOGGER.error("Register Player error: {}", e.getMessage());
+                LOGGER.log(Level.SEVERE, "Register Player error: {}", e.getMessage());
             }
         });
 
         txtUsername.setPromptText("Username...");
         txtPassword.setPromptText("Password...");
+
         btnSinglePlayer.setPrefWidth(BUTTON_WIDTH);
+        btnSinglePlayer.setOnAction(event -> {
+            try {
+                startGame(false);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Start game error: {}", e.getMessage());
+            }
+        });
+
         btnMultiPlayer.setPrefWidth(BUTTON_WIDTH);
+        btnSinglePlayer.setOnAction(event -> {
+            try {
+                startGame(true);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Start game error: {}", e.getMessage());
+            }
+        });
+
         btnHistory.setPrefWidth(BUTTON_WIDTH);
         btnLogout.setPrefWidth(BUTTON_WIDTH);
 
@@ -113,7 +133,6 @@ public class SnakeClient extends Application implements Observer {
         glass.setMinWidth(scene.getWidth() - 80);
         glass.setMinHeight(scene.getHeight() - 80);
 
-        StackPane layout = new StackPane();
         layout.getChildren().add(glass);
         layout.setStyle("-fx-padding: 40;");
         root.getChildren().add(layout);
@@ -122,15 +141,56 @@ public class SnakeClient extends Application implements Observer {
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
+
+        scene.setOnKeyPressed(keyEvent -> keyPressed(keyEvent));
     }
 
     private void registerPlayer() {
         loginMenu.setVisible(false);
         mainMenu.setVisible(true);
 
-        /*communicator = SnakeClientWebSocket.getInstance();
+        //TODO: REST call to register player to database
+
+        username = txtUsername.getText();
+
+
+    }
+
+    private void startGame(boolean singlePlayer) {
+        layout.setVisible(false);
+
+        communicator = SnakeCommunicatorClientWebSocket.getInstance();
         communicator.addObserver(this);
-        communicator.start();*/
+        communicator.start();
+
+        communicator.register(username, singlePlayer);
+
+
+    }
+
+    public void keyPressed(KeyEvent keyEvent) {
+        LOGGER.log(Level.INFO, String.format("Key Pressed: %s", keyEvent.getCode().toString()));
+
+        switch (keyEvent.getCode()) {
+            case KP_UP:
+            case W:
+                // SNAKE GO UP
+                break;
+            case KP_DOWN:
+            case S:
+                // SNAKE GO DOWN
+                break;
+            case KP_LEFT:
+            case A:
+                // SNAKE GO LEFT
+                break;
+            case KP_RIGHT:
+            case D:
+                // SNAKE GO RIGHT
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + keyEvent.getCode());
+        }
     }
 
     @Override

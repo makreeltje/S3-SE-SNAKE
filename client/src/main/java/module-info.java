@@ -5,7 +5,8 @@ module client {
     requires gson;
     requires java.sql;
     requires communicator;
-    requires org.slf4j;
+    requires java.desktop;
+    requires jdk.accessibility;
 
     exports client;
 }

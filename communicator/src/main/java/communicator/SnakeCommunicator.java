@@ -12,6 +12,6 @@ import java.util.Observable;
  * A communicator needs to extend Observable and implement ICommunicator.
  * @author Nico Kuijpers
  */
-public abstract class Snake extends Observable implements ISnake {
+public abstract class SnakeCommunicator extends Observable implements ISnake {
     // Nothing
 }

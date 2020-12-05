@@ -9,7 +9,7 @@ package shared;
  * Message to be sent from client to server and vice versa  using WebSockets.
  * @author Nico Kuijpers
  */
-public class SnakeWebSocketMessage {
+public class SnakeWebSocketMessage extends SnakeWebSocketMessageRegister {
     
     // Operation that is requested at client side
     private SnakeWebSocketMessageOperation operation;

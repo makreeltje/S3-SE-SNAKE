@@ -29,32 +29,15 @@ public interface ISnake {
     
     /**
      * Register a property.
-     * @param property
+     * @param username
+     * @param singlePlayer
      */
-    public void register(String property);
-    
-    /**
-     * Unregister a property.
-     * @param property
-     */
-    public void unregister(String property);
+    public void register(String username, boolean singlePlayer);
 
     /**
-     * Subscribe to a property.
-     * @param property
+     * Get position
+     * @param row
+     * @param column
      */
-    public void subscribe(String property);
-
-    /**
-     * Unsubscribe from a property.
-     * @param property
-     */
-    public void unsubscribe(String property);
-
-    /**
-     * Update a property by sending a message to all clients
-     * that are subscribed to the property of the message.
-     * @param message the message to be sent
-     */
-    public void update(SnakeMessage message);
+    void position(int row, int column);
 }

@@ -4,11 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import shared.SnakeWebSocketMessage;
 import shared.SnakeWebSocketMessageOperation;
+import shared.SnakeWebSocketMessageRegister;
 
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.MessageFormat;
 
 // https://github.com/jetty-project/embedded-jetty-websocket-examples/tree/master/javax.websocket-example/src/main/java/org/eclipse/jetty/demo
 
@@ -24,10 +26,10 @@ import java.net.URISyntaxException;
  * @author Nico Kuijpers
  */
 @ClientEndpoint
-public class SnakeClientWebSocket extends Snake {
+public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
     
     // Singleton
-    private static SnakeClientWebSocket instance = null;
+    private static SnakeCommunicatorClientWebSocket instance = null;
     
     /**
      * The local websocket uri to connect to.
@@ -44,7 +46,7 @@ public class SnakeClientWebSocket extends Snake {
     boolean isRunning = false;
     
     // Private constructor (singleton pattern)
-    private SnakeClientWebSocket() {
+    private SnakeCommunicatorClientWebSocket() {
         gson = new Gson();
     }
     
@@ -53,10 +55,10 @@ public class SnakeClientWebSocket extends Snake {
      * Ensure that only one instance of this class is created.
      * @return instance of client web socket
      */
-    public static SnakeClientWebSocket getInstance() {
+    public static SnakeCommunicatorClientWebSocket getInstance() {
         if (instance == null) {
             System.out.println("[WebSocket Client create singleton instance]");
-            instance = new SnakeClientWebSocket();
+            instance = new SnakeCommunicatorClientWebSocket();
         }
         return instance;
     }
@@ -108,46 +110,19 @@ public class SnakeClientWebSocket extends Snake {
     }
 
     @Override
-    public void register(String property) {
+    public void register(String username, boolean singlePlayer) {
         SnakeWebSocketMessage message = new SnakeWebSocketMessage();
         message.setOperation(SnakeWebSocketMessageOperation.REGISTERPROPERTY);
-        message.setProperty(property);
+        message.setUsername(username);
+        message.setSinglePlayer(singlePlayer);
         sendMessageToServer(message);
     }
 
     @Override
-    public void unregister(String property) {
-        SnakeWebSocketMessage message = new SnakeWebSocketMessage();
-        message.setOperation(SnakeWebSocketMessageOperation.UNREGISTERPROPERTY);
-        message.setProperty(property);
-        sendMessageToServer(message);
+    public void position(int row, int column) {
+
     }
 
-    @Override
-    public void subscribe(String property) {
-        SnakeWebSocketMessage message = new SnakeWebSocketMessage();
-        message.setOperation(SnakeWebSocketMessageOperation.SUBSCRIBETOPROPERTY);
-        message.setProperty(property);
-        sendMessageToServer(message);
-    }
-
-    @Override
-    public void unsubscribe(String property) {
-        SnakeWebSocketMessage message = new SnakeWebSocketMessage();
-        message.setOperation(SnakeWebSocketMessageOperation.UNSUBSCRIBEFROMPROPERTY);
-        message.setProperty(property);
-        sendMessageToServer(message);
-    }
-    
-    @Override
-    public void update(SnakeMessage message) {
-        SnakeWebSocketMessage wsMessage = new SnakeWebSocketMessage();
-        wsMessage.setOperation(SnakeWebSocketMessageOperation.UPDATEPROPERTY);
-        wsMessage.setProperty(message.getProperty());
-        wsMessage.setContent(message.getContent());
-        sendMessageToServer(wsMessage);
-    }
-    
     private void sendMessageToServer(SnakeWebSocketMessage message) {
         String jsonMessage = gson.toJson(message);
         // Use asynchronous communication

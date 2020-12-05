@@ -30,4 +30,9 @@
       <module name="shared" target="11" />
     </bytecodeTargetLevel>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="client" options="--add-exports java.desktop/java.awt.peer=client" />
+    </option>
+  </component>
 </project>
