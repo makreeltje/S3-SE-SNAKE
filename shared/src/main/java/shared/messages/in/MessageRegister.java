@@ -1,7 +1,7 @@
-package shared.messages;
+package shared.messages.in;
 
 import lombok.Data;
-import shared.BaseMessage;
+import shared.messages.BaseMessage;
 
 @Data
 public class MessageRegister extends BaseMessage {

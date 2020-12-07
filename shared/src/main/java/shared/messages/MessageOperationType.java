@@ -3,16 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package shared;
+package shared.messages;
 
 /**
  * Indicate type of operation to be performed.
  * @author Nico Kuijpers
  */
-public enum SnakeWebSocketMessageOperation {
-    REGISTERPROPERTY,         // Register a property (client only)
-    UNREGISTERPROPERTY,       // Unregister a registered property (client only
-    SUBSCRIBETOPROPERTY,      // Subscribe to a property (client only)
-    UNSUBSCRIBEFROMPROPERTY,  // Unsubscribe from a property (client only)
-    UPDATEPROPERTY,           // Update property (client and server)
+public enum MessageOperationType {
+    REGISTER_PROPERTY,         // Register a property (client only)
+    UPDATE_PROPERTY,           // Update property (client and server),
+    SEND_MOVE,
+    RECIEVE_MOVE,
 }

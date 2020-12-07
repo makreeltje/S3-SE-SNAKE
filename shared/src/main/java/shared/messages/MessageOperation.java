@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package shared;
+package shared.messages;
 
 import lombok.Data;
 
@@ -12,14 +12,11 @@ import lombok.Data;
  * @author Nico Kuijpers
  */
 @Data
-public class SnakeWebSocketMessage {
+public class MessageOperation {
     
     // Operation that is requested at client side
-    private SnakeWebSocketMessageOperation operation;
+    private MessageOperationType operation;
     
     // Property
     private String property;
-    
-    // Content
-    private String content;
 }

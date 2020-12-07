@@ -1,10 +1,9 @@
-package shared;
+package shared.messages;
 
 import com.google.gson.Gson;
-import shared.messages.MessageBoard;
-import shared.messages.MessageRegister;
-import shared.messages.MessageOperation;
-import shared.messages.MessageOperationType;
+import shared.messages.in.MessageMove;
+import shared.messages.in.MessageRegister;
+import shared.messages.out.MessageMoveOut;
 
 public class MessageCreator {
 
@@ -20,13 +19,19 @@ public class MessageCreator {
                     e.getMessage();
                 }
                 break;
-            case UPDATE_BOARD:
+            case SEND_MOVE:
                 try {
-                    return gson.fromJson(message.getProperty(), MessageBoard.class);
+                    return gson.fromJson(message.getProperty(), MessageMove.class);
                 } catch (Exception e) {
                     e.getMessage();
                 }
                 break;
+            case RECIEVE_MOVE:
+                try {
+                    return gson.fromJson(message.getProperty(), MessageMoveOut.class);
+                } catch (Exception e) {
+                    e.getMessage();
+                }
             default:
                 throw new IllegalStateException("Unexpected value: " + message);
         }
@@ -40,8 +45,10 @@ public class MessageCreator {
         messageOperation.setProperty(gson.toJson(property));
 
         messageOperation.setOperation(operation);
-        return messageOperation;
 
+        //String message = gson.toJson(messageOperation);
+
+        return messageOperation;
     }
 
 }

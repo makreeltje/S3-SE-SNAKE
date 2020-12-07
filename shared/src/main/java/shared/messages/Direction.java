@@ -1,4 +1,4 @@
-package client;
+package shared.messages;
 
 public enum Direction {
     UP,

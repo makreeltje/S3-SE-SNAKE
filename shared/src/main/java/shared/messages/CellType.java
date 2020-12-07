@@ -1,4 +1,4 @@
-package server.models;
+package shared.messages;
 
 public enum CellType {
     EMPTY,
