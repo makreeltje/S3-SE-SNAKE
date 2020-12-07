@@ -2,19 +2,21 @@ package server.models;
 
 public class Board {
 
-    private int row;
-    private int column;
-    private Cell[][] cell;
+    private Cell cell;
 
-    public Board(int row, int column) {
-        cell = new Cell[row][column];
+    public Board(int rowCount, int columnCount) {
+        for (int r = 0; r < rowCount; r++) {
+            for (int c = 0; c < columnCount; c++){
+                setCell(new Cell(r, c, CellType.EMPTY));
+            }
+        }
     }
 
-    public Cell[][] getCell() {
+    public Cell getCell() {
         return cell;
     }
 
-    public void setCell(Cell[][] cell) {
+    public void setCell(Cell cell) {
         this.cell = cell;
     }
 }

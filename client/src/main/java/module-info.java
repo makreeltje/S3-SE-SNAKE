@@ -7,6 +7,7 @@ module client {
     requires communicator;
     requires java.desktop;
     requires jdk.accessibility;
+    requires shared;
 
     exports client;
 }

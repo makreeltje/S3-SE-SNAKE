@@ -2,18 +2,21 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import server.models.Message;
+import server.models.Board;
+import server.models.Cell;
 import server.models.Player;
 import server.models.Snake;
 import server.service.Players;
-import shared.SnakeWebSocketMessage;
+import server.service.Snakes;
+import shared.messages.*;
+import shared.messages.in.MessageMove;
+import shared.messages.in.MessageRegister;
+import shared.messages.out.MessageMoveOut;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,9 +44,8 @@ public class SnakeServerWebSocket {
     // All sessions
     private static final List<Session> sessions = new ArrayList<>();
     private static final Players players = new Players();
-
-    // Map each property to list of sessions that are subscribed to that property
-    private static final Map<String, List<Session>> propertySessions = new HashMap<>();
+    private static final Board board = new Board(40, 75);
+    private static final Snakes snakes = new Snakes();
 
     @OnOpen
     public void onConnect(Session session) {
@@ -74,22 +76,43 @@ public class SnakeServerWebSocket {
     // Handle incoming message from client
     private void handleMessageFromClient(String jsonMessage, Session session) {
         Gson gson = new Gson();
-        SnakeWebSocketMessage wbMessage = null;
+        MessageOperation wbMessage = null;
         try {
-            wbMessage = gson.fromJson(jsonMessage, SnakeWebSocketMessage.class);
+            wbMessage = gson.fromJson(jsonMessage, MessageOperation.class);
         } catch (JsonSyntaxException ex) {
             LOGGER.log(Level.INFO, format("[WebSocket ERROR: cannot parse Json message %s", jsonMessage));
             return;
         }
 
-        // Operation defined in message
-        Message message = defineMessage(wbMessage);
+        BaseMessage message;
+        MessageCreator messageCreator = new MessageCreator();
+        message = messageCreator.createResult(wbMessage);
 
-        if (null != message.getOperation()) {
-            switch (message.getOperation()) {
-                case REGISTERPROPERTY:
+        // Operation defined in message
+        if (null != wbMessage.getOperation()) {
+            switch (wbMessage.getOperation()) {
+                case REGISTER_PROPERTY:
+                    MessageRegister registerMessage = (MessageRegister) message;
                     // Register property if not registered yet
-                    players.addPlayer(new Player(session, message.getUsername(), message.isSinglePlayer(), new Snake()));
+                    players.addPlayer(new Player(session, registerMessage.getUsername(), registerMessage.getSinglePlayer(), new Snake()));
+
+                    // Send the message to all clients that are subscribed to this property
+                    LOGGER.info("[WebSocket send ] " + jsonMessage + " to:");
+
+                    break;
+                case SEND_MOVE:
+                    MessageMove messageMove = (MessageMove) message;
+                    Player player = players.getPlayerBySession(session);
+                    Cell cell = player.getSnake().getHeadSnake();
+                    snakes.move(player, messageMove.getDirection());
+
+                    MessageMoveOut messageMoveOut = new MessageMoveOut();
+
+                    messageMoveOut.setRow(cell.getRow());
+                    messageMoveOut.setColumn(cell.getColumn());
+                    messageMoveOut.setIndexCellType(CellType.valueOf(cell.getCellType().toString()).ordinal());
+
+                    session.getAsyncRemote().sendText(gson.toJson(messageCreator.createMessage(MessageOperationType.RECIEVE_MOVE, messageMoveOut)));
                     break;
                 /*case UPDATEPROPERTY:
                     // Send the message to all clients that are subscribed to this property
@@ -108,17 +131,5 @@ public class SnakeServerWebSocket {
                     break;
             }
         }
-    }
-
-    private Message defineMessage(SnakeWebSocketMessage wbMessage) {
-        Message message = new Message();
-
-        message.setOperation(wbMessage.getOperation());
-        message.setProperty(wbMessage.getProperty());
-        message.setUsername(wbMessage.getUsername());
-        //message.setPassword(wbMessage.getPassword());
-        message.setSinglePlayer(wbMessage.getSinglePlayer());
-
-        return message;
     }
 }

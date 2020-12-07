@@ -1,19 +1,21 @@
 package server.models;
 
-import shared.SnakeWebSocketMessageOperation;
+import shared.messages.MessageOperationType;
 
 public class Message {
-    private SnakeWebSocketMessageOperation operation;
+    private MessageOperationType operation;
     private String property;
     private String username;
     private String password;
     private boolean singlePlayer;
+    private int rowCount;
+    private int columnCount;
 
-    public SnakeWebSocketMessageOperation getOperation() {
+    public MessageOperationType getOperation() {
         return operation;
     }
 
-    public void setOperation(SnakeWebSocketMessageOperation operation) {
+    public void setOperation(MessageOperationType operation) {
         this.operation = operation;
     }
 
@@ -47,5 +49,21 @@ public class Message {
 
     public void setSinglePlayer(boolean singlePlayer) {
         this.singlePlayer = singlePlayer;
+    }
+
+    public int getRowCount() {
+        return rowCount;
+    }
+
+    public void setRowCount(int rowCount) {
+        this.rowCount = rowCount;
+    }
+
+    public int getColumnCount() {
+        return columnCount;
+    }
+
+    public void setColumnCount(int columnCount) {
+        this.columnCount = columnCount;
     }
 }

@@ -5,6 +5,8 @@
  */
 package communicator;
 
+import shared.messages.Direction;
+
 /**
  * Interface of Communicator in order to 
  * 1) start and stop connection;
@@ -40,4 +42,10 @@ public interface ISnake {
      * @param column
      */
     void position(int row, int column);
+
+    /**
+     * Move snake
+     * @param direction
+     */
+    void move(Direction direction);
 }

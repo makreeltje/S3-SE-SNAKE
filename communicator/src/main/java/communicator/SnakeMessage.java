@@ -5,33 +5,19 @@
  */
 package communicator;
 
+import lombok.Data;
+import shared.messages.MessageOperationType;
+
 /**
  * Message to be sent from client to client through a Communicator.
  * All clients that are subscribed to the property of a message
  * will receive a copy of this message.
  * @author Nico Kuijpers
  */
+@Data
 public class SnakeMessage {
-    
-    // Property to which receiving clients should be subscribed
+
+    private MessageOperationType operation;
+
     private String property;
-    
-    // Content of the message
-    private String content;
-
-    public String getProperty() {
-        return property;
-    }
-
-    public void setProperty(String property) {
-        this.property = property;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 }

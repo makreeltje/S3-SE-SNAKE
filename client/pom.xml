@@ -12,7 +12,6 @@
     <artifactId>client</artifactId>
 
     <dependencies>
-
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>

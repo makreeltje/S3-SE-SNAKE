@@ -2,6 +2,7 @@ package client;
 
 import communicator.SnakeCommunicator;
 import communicator.SnakeCommunicatorClientWebSocket;
+import communicator.SnakeMessage;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -11,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.skin.TextInputControlSkin;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
@@ -18,6 +20,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import shared.messages.Direction;
+import shared.messages.MessageCreator;
+import shared.messages.MessageOperation;
+import shared.messages.MessageOperationType;
+import shared.messages.out.MessageMoveOut;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -31,7 +38,7 @@ public class SnakeClient extends Application implements Observer {
     private static final Logger LOGGER = Logger.getLogger(SnakeClient.class.getName());
 
     private static final int FRUITS = 3;
-    private static final int TICKS = 100;
+
 
     private static final int RECTANGLE_SIZE = 20;
     private static final int NR_SQUARES_HORIZONTAL = 75;
@@ -43,6 +50,7 @@ public class SnakeClient extends Application implements Observer {
 
     private VBox mainMenu = new VBox(20);
     private VBox loginMenu = new VBox(20);
+    private Scene scene;
     private StackPane layout = new StackPane();
 
     private TextField txtUsername = new TextField();
@@ -59,6 +67,7 @@ public class SnakeClient extends Application implements Observer {
     private SnakeCommunicator communicator = null;
 
     private String username;
+    private Direction direction;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -66,7 +75,7 @@ public class SnakeClient extends Application implements Observer {
         stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream("snake-icon.png")));
 
         Group root = new Group();
-        Scene scene = new Scene(root, NR_SQUARES_HORIZONTAL * RECTANGLE_SIZE,NR_SQUARES_VERTICAL * RECTANGLE_SIZE);
+        scene = new Scene(root, NR_SQUARES_HORIZONTAL * RECTANGLE_SIZE,NR_SQUARES_VERTICAL * RECTANGLE_SIZE);
         scene.getStylesheets().add(this.getClass().getClassLoader().getResource("style.css").toExternalForm());
 
         // Main playing field
@@ -142,7 +151,7 @@ public class SnakeClient extends Application implements Observer {
         stage.setScene(scene);
         stage.show();
 
-        scene.setOnKeyPressed(keyEvent -> keyPressed(keyEvent));
+
     }
 
     private void registerPlayer() {
@@ -165,6 +174,7 @@ public class SnakeClient extends Application implements Observer {
 
         communicator.register(username, singlePlayer);
 
+        scene.setOnKeyPressed(keyEvent -> keyPressed(keyEvent));
 
     }
 
@@ -174,27 +184,50 @@ public class SnakeClient extends Application implements Observer {
         switch (keyEvent.getCode()) {
             case KP_UP:
             case W:
-                // SNAKE GO UP
+                communicator.move(Direction.UP);
                 break;
             case KP_DOWN:
             case S:
-                // SNAKE GO DOWN
+                communicator.move(Direction.DOWN);
                 break;
             case KP_LEFT:
             case A:
-                // SNAKE GO LEFT
+                communicator.move(Direction.LEFT);
                 break;
             case KP_RIGHT:
             case D:
-                // SNAKE GO RIGHT
+                communicator.move(Direction.RIGHT);
                 break;
             default:
-                throw new IllegalStateException("Unexpected value: " + keyEvent.getCode());
+                break;
         }
+
+    }
+
+    private void updatePosition(int row, int column) {
+
+        playingFieldArea[column][row].setFill(Color.RED);
+    }
+
+    public void endGame(){
+        scene.setOnKeyPressed(null);
     }
 
     @Override
     public void update(Observable o, Object arg) {
+        MessageOperation message = (MessageOperation) arg;
+        MessageCreator messageCreator = new MessageCreator();
+
+        switch (message.getOperation()) {
+            case RECIEVE_MOVE:
+                MessageMoveOut messageMove =  (MessageMoveOut) messageCreator.createResult(message);
+                updatePosition(messageMove.getRow(), messageMove.getColumn());
+                break;
+            case RECIEVE_GROW:
+                break;
+
+        }
+
 
     }
 }

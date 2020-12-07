@@ -2,15 +2,15 @@ package communicator;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import shared.SnakeWebSocketMessage;
-import shared.SnakeWebSocketMessageOperation;
-import shared.SnakeWebSocketMessageRegister;
+import shared.messages.MessageCreator;
+import shared.messages.*;
+import shared.messages.in.MessageMove;
+import shared.messages.in.MessageRegister;
 
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.MessageFormat;
 
 // https://github.com/jetty-project/embedded-jetty-websocket-examples/tree/master/javax.websocket-example/src/main/java/org/eclipse/jetty/demo
 
@@ -111,11 +111,24 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
 
     @Override
     public void register(String username, boolean singlePlayer) {
-        SnakeWebSocketMessage message = new SnakeWebSocketMessage();
-        message.setOperation(SnakeWebSocketMessageOperation.REGISTERPROPERTY);
-        message.setUsername(username);
-        message.setSinglePlayer(singlePlayer);
-        sendMessageToServer(message);
+        MessageCreator messageCreator = new MessageCreator();
+        MessageRegister messageRegister = new MessageRegister();
+
+        messageRegister.setUsername(username);
+        messageRegister.setSinglePlayer(singlePlayer);
+
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.REGISTER_PROPERTY, messageRegister));
+
+    }
+
+    @Override
+    public void move(Direction direction) {
+        MessageCreator messageCreator = new MessageCreator();
+        MessageMove messageMove = new MessageMove();
+
+        messageMove.setDirection(direction);
+
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.SEND_MOVE, messageMove));
     }
 
     @Override
@@ -123,7 +136,7 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
 
     }
 
-    private void sendMessageToServer(SnakeWebSocketMessage message) {
+    private void sendMessageToServer(MessageOperation message) {
         String jsonMessage = gson.toJson(message);
         // Use asynchronous communication
         session.getAsyncRemote().sendText(jsonMessage);
@@ -178,9 +191,9 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
     private void processMessage(String jsonMessage) {
         
         // Parse incoming message
-        SnakeWebSocketMessage wsMessage;
+        MessageOperation wsMessage;
         try {
-            wsMessage = gson.fromJson(jsonMessage, SnakeWebSocketMessage.class);
+            wsMessage = gson.fromJson(jsonMessage, MessageOperation.class);
         }
         catch (JsonSyntaxException ex) {
             System.out.println("[WebSocket Client ERROR: cannot parse Json message " + jsonMessage);
@@ -188,9 +201,9 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
         }
         
         // Only operation update property will be further processed
-        SnakeWebSocketMessageOperation operation;
+        MessageOperationType operation;
         operation = wsMessage.getOperation();
-        if (operation == null || operation != SnakeWebSocketMessageOperation.UPDATEPROPERTY) {
+        if (operation == null) {
             System.out.println("[WebSocket Client ERROR: update property operation expected]");
             return;
         }
@@ -202,17 +215,10 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
             return;
         }
         
-        // Obtain content from message
-        String content = wsMessage.getContent();
-        if (content == null || "".equals(content)) {
-            System.out.println("[WebSocket Client ERROR: message without content]");
-            return;
-        }
-        
         // Create instance of CommunicaterMessage for observers
-        SnakeMessage commMessage = new SnakeMessage();
+        MessageOperation commMessage = new MessageOperation();
+        commMessage.setOperation(operation);
         commMessage.setProperty(property);
-        commMessage.setContent(content);
         
         // Notify observers
         this.setChanged();
