@@ -205,7 +205,6 @@ public class SnakeClient extends Application implements Observer {
     }
 
     private void updatePosition(int row, int column) {
-
         playingFieldArea[column][row].setFill(Color.RED);
     }
 
@@ -224,6 +223,7 @@ public class SnakeClient extends Application implements Observer {
                 updatePosition(messageMove.getRow(), messageMove.getColumn());
                 break;
             case RECIEVE_GROW:
+
                 break;
 
         }

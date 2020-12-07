@@ -27,7 +27,7 @@ public class Snake {
     }
 
     public Cell getHeadSnake() {
-        return this.snakeParts.get(snakeParts.size() - 1);
+        return this.snakeParts.get(snakeParts.size());
     }
 
     public void setSnakeParts(List<Cell> snakeParts) {
