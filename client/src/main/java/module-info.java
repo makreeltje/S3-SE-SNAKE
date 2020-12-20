@@ -8,6 +8,7 @@ module client {
     requires java.desktop;
     requires jdk.accessibility;
     requires shared;
+    requires lombok;
 
     exports client;
 }

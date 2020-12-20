@@ -2,31 +2,30 @@ package server.service;
 
 import server.models.Cell;
 import server.models.Player;
-import shared.messages.Direction;
 
 public class Snakes {
 
-    public void grow(Player player, Direction direction) {
+    public void grow(Player player) {
 
-        Cell cell = getNextCell(player, direction);
+        Cell cell = getNextCell(player);
 
         player.getSnake().addSnakePart(cell);
 
     }
 
-    public void move(Player player, Direction direction) {
-        Cell cell = getNextCell(player, direction);
+    public void move(Player player) {
+        Cell cell = getNextCell(player);
         player.getSnake().addSnakePart(cell);
         player.getSnake().removeTailSnake();
     }
 
-    private Cell getNextCell(Player player, Direction direction) {
+    private Cell getNextCell(Player player) {
 
         Cell cell = player.getSnake().getHeadSnake();
 
         // TODO: Check if cell is getting out of bounds
 
-        switch (direction) {
+        switch (player.getDirection()) {
             case UP:
                 cell.setRow(cell.getRow() - 1);
                 break;

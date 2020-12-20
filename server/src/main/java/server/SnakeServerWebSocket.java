@@ -2,25 +2,28 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import server.models.Board;
-import server.models.Cell;
 import server.models.Player;
 import server.models.Snake;
+import server.service.Game;
 import server.service.Players;
-import server.service.Snakes;
-import shared.messages.*;
-import shared.messages.in.MessageMove;
-import shared.messages.in.MessageRegister;
-import shared.messages.out.MessageMoveOut;
+import shared.messages.BaseMessage;
+import shared.messages.MessageCreator;
+import shared.messages.MessageOperation;
+import shared.messages.request.RequestFruit;
+import shared.messages.request.RequestMove;
+import shared.messages.request.RequestRegister;
+import shared.messages.request.RequestStart;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
 
 // https://github.com/jetty-project/embedded-jetty-websocket-examples/tree/master/javax.websocket-example/src/main/java/org/eclipse/jetty/demo
 
@@ -44,8 +47,9 @@ public class SnakeServerWebSocket {
     // All sessions
     private static final List<Session> sessions = new ArrayList<>();
     private static final Players players = new Players();
-    private static final Board board = new Board(40, 75);
-    private static final Snakes snakes = new Snakes();
+    private static final Timer timer = new Timer();
+    private static final Game game = new Game();
+    private MessageCreator messageCreator = new MessageCreator();
 
     @OnOpen
     public void onConnect(Session session) {
@@ -85,35 +89,43 @@ public class SnakeServerWebSocket {
         }
 
         BaseMessage message;
-        MessageCreator messageCreator = new MessageCreator();
         message = messageCreator.createResult(wbMessage);
 
         // Operation defined in message
         if (null != wbMessage.getOperation()) {
             switch (wbMessage.getOperation()) {
                 case REGISTER_PROPERTY:
-                    MessageRegister registerMessage = (MessageRegister) message;
+                    RequestRegister registerMessage = (RequestRegister) message;
                     // Register property if not registered yet
                     players.addPlayer(new Player(session, registerMessage.getUsername(), registerMessage.getSinglePlayer(), new Snake()));
 
                     // Send the message to all clients that are subscribed to this property
-                    LOGGER.info("[WebSocket send ] " + jsonMessage + " to:");
-
+                    LOGGER.info(String.format("[WebSocket send ] %s to:", jsonMessage));
                     break;
                 case SEND_MOVE:
-                    MessageMove messageMove = (MessageMove) message;
+                    RequestMove requestMove = (RequestMove) message;
                     Player player = players.getPlayerBySession(session);
-                    Cell cell = player.getSnake().getHeadSnake();
-                    snakes.move(player, messageMove.getDirection());
-
-                    MessageMoveOut messageMoveOut = new MessageMoveOut();
-
-                    messageMoveOut.setRow(cell.getRow());
-                    messageMoveOut.setColumn(cell.getColumn());
-                    messageMoveOut.setIndexCellType(CellType.valueOf(cell.getCellType().toString()).ordinal());
-
-                    session.getAsyncRemote().sendText(gson.toJson(messageCreator.createMessage(MessageOperationType.RECIEVE_MOVE, messageMoveOut)));
+                    player.setDirection(requestMove.getDirection());
                     break;
+                case SEND_READY:
+                    RequestStart requestStart = (RequestStart) message;
+                    player = players.getPlayerBySession(session);
+                    player.setReady(requestStart.isStart());
+
+                    if(players.getPlayerList().stream().allMatch(Player::isReady)) {
+                        timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                game.updateBoard(players.getPlayerList());
+                            }
+                        }, game.getTicks(), game.getTicks());
+                    }
+                    break;
+                case SEND_GENERATE_FRUIT:
+                    RequestFruit requestFruit = (RequestFruit) message;
+                    game.generateFruit(requestFruit.getFruitCount());
+                    break;
+
                 /*case UPDATEPROPERTY:
                     // Send the message to all clients that are subscribed to this property
                     if (propertySessions.get(message.getProperty()) != null) {
@@ -127,7 +139,7 @@ public class SnakeServerWebSocket {
                     }
                     break;*/
                 default:
-                    LOGGER.log(Level.SEVERE, "[WebSocket ERROR: cannot process Json message " + jsonMessage);
+                    LOGGER.log(Level.SEVERE, String.format("[WebSocket ERROR: cannot process Json message %s", jsonMessage));
                     break;
             }
         }

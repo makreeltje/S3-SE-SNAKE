@@ -13,5 +13,8 @@ public enum MessageOperationType {
     REGISTER_PROPERTY,         // Register a property (client only)
     UPDATE_PROPERTY,           // Update property (client and server),
     SEND_MOVE,
-    RECIEVE_MOVE,
+    SEND_READY,
+    SEND_GENERATE_FRUIT,
+    RECEIVE_MOVE,
+    RECEIVE_GROW,
 }

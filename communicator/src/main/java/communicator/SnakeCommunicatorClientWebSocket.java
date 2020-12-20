@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import shared.messages.MessageCreator;
 import shared.messages.*;
-import shared.messages.in.MessageMove;
-import shared.messages.in.MessageRegister;
+import shared.messages.request.RequestFruit;
+import shared.messages.request.RequestMove;
+import shared.messages.request.RequestRegister;
+import shared.messages.request.RequestStart;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -41,6 +43,8 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
     private String message;
     
     private Gson gson = null;
+
+    private MessageCreator messageCreator = new MessageCreator();
     
     // Status of the webSocket client
     boolean isRunning = false;
@@ -111,30 +115,43 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
 
     @Override
     public void register(String username, boolean singlePlayer) {
-        MessageCreator messageCreator = new MessageCreator();
-        MessageRegister messageRegister = new MessageRegister();
+        RequestRegister requestRegister = new RequestRegister();
 
-        messageRegister.setUsername(username);
-        messageRegister.setSinglePlayer(singlePlayer);
+        requestRegister.setUsername(username);
+        requestRegister.setSinglePlayer(singlePlayer);
 
-        sendMessageToServer(messageCreator.createMessage(MessageOperationType.REGISTER_PROPERTY, messageRegister));
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.REGISTER_PROPERTY, requestRegister));
 
     }
 
     @Override
     public void move(Direction direction) {
-        MessageCreator messageCreator = new MessageCreator();
-        MessageMove messageMove = new MessageMove();
+        RequestMove requestMove = new RequestMove();
 
-        messageMove.setDirection(direction);
+        requestMove.setDirection(direction);
 
-        sendMessageToServer(messageCreator.createMessage(MessageOperationType.SEND_MOVE, messageMove));
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.SEND_MOVE, requestMove));
     }
 
     @Override
     public void position(int row, int column) {
 
     }
+
+    @Override
+    public void ready(boolean ready) {
+        RequestStart requestStart = new RequestStart();
+        requestStart.setStart(ready);
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.SEND_READY, requestStart));
+    }
+
+    @Override
+    public void generateFruits(int fruitCount) {
+        RequestFruit requestFruit = new RequestFruit();
+        requestFruit.setFruitCount(fruitCount);
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.SEND_GENERATE_FRUIT, requestFruit));
+    }
+
 
     private void sendMessageToServer(MessageOperation message) {
         String jsonMessage = gson.toJson(message);
@@ -169,7 +186,7 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
             
         } catch (IOException | URISyntaxException | DeploymentException ex) {
             // do something useful eventually
-            ex.printStackTrace();
+            ex.getMessage();
         }
     }
 
@@ -183,7 +200,7 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
 
         } catch (IOException ex){
             // do something useful eventually
-            ex.printStackTrace();
+            ex.getMessage();
         }
     }
     

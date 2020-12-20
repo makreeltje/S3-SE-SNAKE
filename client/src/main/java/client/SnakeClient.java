@@ -1,18 +1,14 @@
 package client;
 
+import client.models.Cell;
+import client.models.CellType;
 import communicator.SnakeCommunicator;
 import communicator.SnakeCommunicatorClientWebSocket;
-import communicator.SnakeMessage;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.control.skin.TextInputControlSkin;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
@@ -23,15 +19,14 @@ import javafx.stage.Stage;
 import shared.messages.Direction;
 import shared.messages.MessageCreator;
 import shared.messages.MessageOperation;
-import shared.messages.MessageOperationType;
-import shared.messages.out.MessageMoveOut;
+import shared.messages.response.ResponseMove;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.sun.java.accessibility.util.AWTEventMonitor.addKeyListener;
 
 public class SnakeClient extends Application implements Observer {
 
@@ -40,13 +35,11 @@ public class SnakeClient extends Application implements Observer {
     private static final int FRUITS = 3;
 
 
-    private static final int RECTANGLE_SIZE = 20;
+    private static final double RECTANGLE_SIZE = 20;
     private static final int NR_SQUARES_HORIZONTAL = 75;
     private static final int NR_SQUARES_VERTICAL = 40;
 
-    private static final int TEXT_INPUT_WIDTH = 400;
     private static final int BUTTON_WIDTH = 200;
-    private static final String BUTTON_LAYOUT = "-fx-border-color: #ffffff; -fx-border-width: 3px; -fx-background-color: transparent; -fx-text-fill: #BEBEBE; -fx-font: 2em Consolas;";
 
     private VBox mainMenu = new VBox(20);
     private VBox loginMenu = new VBox(20);
@@ -67,12 +60,15 @@ public class SnakeClient extends Application implements Observer {
     private SnakeCommunicator communicator = null;
 
     private String username;
-    private Direction direction;
+
+    private List<Cell> cellList = new ArrayList<>();
 
     @Override
     public void start(Stage stage) throws Exception {
         LOGGER.info("Snake Client started");
         stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream("snake-icon.png")));
+
+        cellList.add(new Cell(0,0, CellType.SNAKE));
 
         Group root = new Group();
         scene = new Scene(root, NR_SQUARES_HORIZONTAL * RECTANGLE_SIZE,NR_SQUARES_VERTICAL * RECTANGLE_SIZE);
@@ -108,7 +104,6 @@ public class SnakeClient extends Application implements Observer {
         txtUsername.setPromptText("Username...");
         txtPassword.setPromptText("Password...");
 
-        btnSinglePlayer.setPrefWidth(BUTTON_WIDTH);
         btnSinglePlayer.setOnAction(event -> {
             try {
                 startGame(false);
@@ -117,7 +112,6 @@ public class SnakeClient extends Application implements Observer {
             }
         });
 
-        btnMultiPlayer.setPrefWidth(BUTTON_WIDTH);
         btnSinglePlayer.setOnAction(event -> {
             try {
                 startGame(true);
@@ -151,7 +145,6 @@ public class SnakeClient extends Application implements Observer {
         stage.setScene(scene);
         stage.show();
 
-
     }
 
     private void registerPlayer() {
@@ -173,14 +166,13 @@ public class SnakeClient extends Application implements Observer {
         communicator.start();
 
         communicator.register(username, singlePlayer);
-
-        scene.setOnKeyPressed(keyEvent -> keyPressed(keyEvent));
+        drawSnake();
+        communicator.generateFruits(FRUITS);
+        scene.setOnKeyPressed(SnakeClient.this::keyPressed);
 
     }
 
     public void keyPressed(KeyEvent keyEvent) {
-        LOGGER.log(Level.INFO, String.format("Key Pressed: %s", keyEvent.getCode().toString()));
-
         switch (keyEvent.getCode()) {
             case KP_UP:
             case W:
@@ -198,14 +190,25 @@ public class SnakeClient extends Application implements Observer {
             case D:
                 communicator.move(Direction.RIGHT);
                 break;
+            case SPACE:
+                communicator.ready(true);
+                break;
             default:
                 break;
         }
 
     }
 
-    private void updatePosition(int row, int column) {
-        playingFieldArea[column][row].setFill(Color.RED);
+    private void updatePosition(int row, int column, boolean ateFruit) {
+        cellList.add(new client.models.Cell(row, column, CellType.SNAKE));
+        playingFieldArea[cellList.get(0).getColumn()][cellList.get(0).getRow()].setFill(Color.web("#424242"));
+        if (!ateFruit)
+            cellList.remove(0);
+        drawSnake();
+    }
+
+    private void drawSnake() {
+        cellList.forEach(cell -> playingFieldArea[cell.getColumn()][cell.getRow()].setFill(Color.RED));
     }
 
     public void endGame(){
@@ -218,14 +221,15 @@ public class SnakeClient extends Application implements Observer {
         MessageCreator messageCreator = new MessageCreator();
 
         switch (message.getOperation()) {
-            case RECIEVE_MOVE:
-                MessageMoveOut messageMove =  (MessageMoveOut) messageCreator.createResult(message);
-                updatePosition(messageMove.getRow(), messageMove.getColumn());
+            case RECEIVE_MOVE:
+                ResponseMove messageMove =  (ResponseMove) messageCreator.createResult(message);
+                updatePosition(messageMove.getRow(), messageMove.getColumn(), false);
                 break;
-            case RECIEVE_GROW:
+            case RECEIVE_GROW:
 
                 break;
-
+            default:
+                throw new IllegalStateException("Unexpected value: " + message.getOperation());
         }
 
 

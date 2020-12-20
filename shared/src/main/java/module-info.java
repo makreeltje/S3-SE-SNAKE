@@ -3,6 +3,6 @@ module shared {
     requires lombok;
 
     exports shared.messages;
-    exports shared.messages.in;
-    exports shared.messages.out;
+    exports shared.messages.request;
+    exports shared.messages.response;
 }

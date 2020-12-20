@@ -1,10 +1,10 @@
-package shared.messages.in;
+package shared.messages.request;
 
 import lombok.Data;
 import shared.messages.BaseMessage;
 
 @Data
-public class MessageBoard extends BaseMessage {
+public class RequestBoard extends BaseMessage {
     private int rowCount;
     private int columnCount;
 }

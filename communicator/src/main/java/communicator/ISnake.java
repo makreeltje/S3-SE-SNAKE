@@ -22,19 +22,19 @@ public interface ISnake {
     /**
      * Start the connection.
      */
-    public void start();
+    void start();
     
     /**
      * Stop the connection.
      */
-    public void stop();
+    void stop();
     
     /**
      * Register a property.
      * @param username
      * @param singlePlayer
      */
-    public void register(String username, boolean singlePlayer);
+    void register(String username, boolean singlePlayer);
 
     /**
      * Get position
@@ -48,4 +48,16 @@ public interface ISnake {
      * @param direction
      */
     void move(Direction direction);
+
+    /**
+     * Sets player ready
+     * @param ready
+     */
+    void ready(boolean ready);
+
+    /**
+     * Generate fruit pieces
+     * @param fruitCount
+     */
+    void generateFruits(int fruitCount);
 }
