@@ -1,9 +1,8 @@
 package shared.messages.request;
 
-import lombok.Data;
 import shared.messages.BaseMessage;
 
-public class RequestBoard extends BaseMessage {
+public class RequestBoard implements BaseMessage {
     private int rowCount;
     private int columnCount;
 

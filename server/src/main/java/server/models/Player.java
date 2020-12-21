@@ -1,6 +1,5 @@
 package server.models;
 
-import lombok.Data;
 import shared.messages.Direction;
 
 import javax.websocket.Session;

@@ -1,9 +1,8 @@
 package shared.messages.request;
 
-import lombok.Data;
 import shared.messages.BaseMessage;
 
-public class RequestFruit extends BaseMessage {
+public class RequestFruit implements BaseMessage {
     private int fruitCount;
 
     public int getFruitCount() {

@@ -1,10 +1,9 @@
 package shared.messages.response;
 
-import lombok.Data;
 import shared.messages.BaseMessage;
 import shared.messages.CellType;
 
-public class ResponseMove extends BaseMessage {
+public class ResponseMove implements BaseMessage {
     private int row;
     private int column;
     private CellType cellType;
@@ -34,6 +33,6 @@ public class ResponseMove extends BaseMessage {
     }
 
     public CellType setIndexCellType(int index) {
-        return cellType.values()[index];
+        return CellType.values()[index];
     }
 }

@@ -37,13 +37,6 @@ public interface ISnake {
     void register(String username, boolean singlePlayer);
 
     /**
-     * Get position
-     * @param row
-     * @param column
-     */
-    void position(int row, int column);
-
-    /**
      * Move snake
      * @param direction
      */

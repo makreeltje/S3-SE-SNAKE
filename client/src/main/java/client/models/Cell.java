@@ -1,7 +1,5 @@
 package client.models;
 
-import lombok.Data;
-
 public class Cell {
     private int row;
     private int column;
