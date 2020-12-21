@@ -5,6 +5,8 @@
  */
 package communicator;
 
+import shared.messages.Direction;
+
 /**
  * Interface of Communicator in order to 
  * 1) start and stop connection;
@@ -20,41 +22,42 @@ public interface ISnake {
     /**
      * Start the connection.
      */
-    public void start();
+    void start();
     
     /**
      * Stop the connection.
      */
-    public void stop();
+    void stop();
     
     /**
      * Register a property.
-     * @param property
+     * @param username
+     * @param singlePlayer
      */
-    public void register(String property);
-    
-    /**
-     * Unregister a property.
-     * @param property
-     */
-    public void unregister(String property);
+    void register(String username, boolean singlePlayer);
 
     /**
-     * Subscribe to a property.
-     * @param property
+     * Get position
+     * @param row
+     * @param column
      */
-    public void subscribe(String property);
+    void position(int row, int column);
 
     /**
-     * Unsubscribe from a property.
-     * @param property
+     * Move snake
+     * @param direction
      */
-    public void unsubscribe(String property);
+    void move(Direction direction);
 
     /**
-     * Update a property by sending a message to all clients
-     * that are subscribed to the property of the message.
-     * @param message the message to be sent
+     * Sets player ready
+     * @param ready
      */
-    public void update(SnakeMessage message);
+    void ready(boolean ready);
+
+    /**
+     * Generate fruit pieces
+     * @param fruitCount
+     */
+    void generateFruits(int fruitCount);
 }

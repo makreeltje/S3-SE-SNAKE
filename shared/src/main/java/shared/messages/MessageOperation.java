@@ -3,28 +3,25 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package shared;
+package shared.messages;
 
 /**
  * Message to be sent from client to server and vice versa  using WebSockets.
  * @author Nico Kuijpers
  */
-public class SnakeWebSocketMessage {
+public class MessageOperation {
     
     // Operation that is requested at client side
-    private SnakeWebSocketMessageOperation operation;
+    private MessageOperationType operation;
     
     // Property
     private String property;
-    
-    // Content
-    private String content;
 
-    public SnakeWebSocketMessageOperation getOperation() {
+    public MessageOperationType getOperation() {
         return operation;
     }
 
-    public void setOperation(SnakeWebSocketMessageOperation operation) {
+    public void setOperation(MessageOperationType operation) {
         this.operation = operation;
     }
 
@@ -34,13 +31,5 @@ public class SnakeWebSocketMessage {
 
     public void setProperty(String property) {
         this.property = property;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 }
