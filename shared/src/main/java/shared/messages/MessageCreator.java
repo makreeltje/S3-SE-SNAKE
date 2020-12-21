@@ -9,28 +9,30 @@ import shared.messages.response.ResponseMove;
 
 public class MessageCreator {
 
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     public BaseMessage createResult(MessageOperation message) {
-        try {
-            switch (message.getOperation()) {
-                case REGISTER_PROPERTY:
-                    return gson.fromJson(message.getProperty(), RequestRegister.class);
-                case SEND_MOVE:
-                    return gson.fromJson(message.getProperty(), RequestMove.class);
-                case SEND_READY:
-                    return gson.fromJson(message.getProperty(), RequestStart.class);
-                case RECEIVE_MOVE:
-                    return gson.fromJson(message.getProperty(), ResponseMove.class);
-                case SEND_GENERATE_FRUIT:
-                    return gson.fromJson(message.getProperty(), RequestFruit.class);
-                default:
-                    throw new IllegalStateException("Unexpected value: " + message);
-            }
-        } catch (Exception e) {
-            e.getMessage();
+        BaseMessage result;
+        switch (message.getOperation()) {
+            case REGISTER_PROPERTY:
+                result = gson.fromJson(message.getProperty(), RequestRegister.class);
+                break;
+            case SEND_MOVE:
+                result = gson.fromJson(message.getProperty(), RequestMove.class);
+                break;
+            case SEND_READY:
+                result = gson.fromJson(message.getProperty(), RequestStart.class);
+                break;
+            case RECEIVE_MOVE:
+                result = gson.fromJson(message.getProperty(), ResponseMove.class);
+                break;
+            case SEND_GENERATE_FRUIT:
+                result = gson.fromJson(message.getProperty(), RequestFruit.class);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + message);
         }
-        return null;
+        return result;
     }
 
     public MessageOperation createMessage(MessageOperationType operation, BaseMessage property) {

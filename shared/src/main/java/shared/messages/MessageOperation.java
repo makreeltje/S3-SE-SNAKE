@@ -5,13 +5,10 @@
  */
 package shared.messages;
 
-import lombok.Data;
-
 /**
  * Message to be sent from client to server and vice versa  using WebSockets.
  * @author Nico Kuijpers
  */
-@Data
 public class MessageOperation {
     
     // Operation that is requested at client side
@@ -19,4 +16,20 @@ public class MessageOperation {
     
     // Property
     private String property;
+
+    public MessageOperationType getOperation() {
+        return operation;
+    }
+
+    public void setOperation(MessageOperationType operation) {
+        this.operation = operation;
+    }
+
+    public String getProperty() {
+        return property;
+    }
+
+    public void setProperty(String property) {
+        this.property = property;
+    }
 }

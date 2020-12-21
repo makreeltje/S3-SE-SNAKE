@@ -13,7 +13,6 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-@Data
 public class Game {
     private int ticks = 100;
 
@@ -45,5 +44,45 @@ public class Game {
 
 
         }
+    }
+
+    public int getTicks() {
+        return ticks;
+    }
+
+    public void setTicks(int ticks) {
+        this.ticks = ticks;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+
+    public Players getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(Players players) {
+        this.players = players;
+    }
+
+    public Snakes getSnakes() {
+        return snakes;
+    }
+
+    public void setSnakes(Snakes snakes) {
+        this.snakes = snakes;
+    }
+
+    public Timer getTimer() {
+        return timer;
+    }
+
+    public void setTimer(Timer timer) {
+        this.timer = timer;
     }
 }
