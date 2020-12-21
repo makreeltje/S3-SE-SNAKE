@@ -1,9 +1,8 @@
 package shared.messages.request;
 
-import lombok.Data;
 import shared.messages.BaseMessage;
 
-public class RequestRegister extends BaseMessage {
+public class RequestRegister implements BaseMessage {
 
     private String username;
     private Boolean singlePlayer;

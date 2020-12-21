@@ -13,6 +13,10 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static java.text.MessageFormat.format;
 
 // https://github.com/jetty-project/embedded-jetty-websocket-examples/tree/master/javax.websocket-example/src/main/java/org/eclipse/jetty/demo
 
@@ -32,12 +36,13 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
     
     // Singleton
     private static SnakeCommunicatorClientWebSocket instance = null;
-    
+
     /**
      * The local websocket uri to connect to.
      */
-    private final String uri = "ws://localhost:8095/communicator/";
-    
+    private static final String URI = "ws://localhost:8095/communicator/";
+    private static final Logger LOGGER = Logger.getLogger(SnakeCommunicatorClientWebSocket.class.getName());
+
     private Session session;
 
     private String message;
@@ -61,7 +66,7 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
      */
     public static SnakeCommunicatorClientWebSocket getInstance() {
         if (instance == null) {
-            System.out.println("[WebSocket Client create singleton instance]");
+            LOGGER.info("[WebSocket Client create singleton instance]");
             instance = new SnakeCommunicatorClientWebSocket();
         }
         return instance;
@@ -72,7 +77,7 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
      */
     @Override
     public void start() {
-        System.out.println("[WebSocket Client start connection]");
+        LOGGER.info("[WebSocket Client start connection]");
         if (!isRunning) {
             startClient();
             isRunning = true;
@@ -81,7 +86,7 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
 
     @Override
     public void stop() {
-        System.out.println("[WebSocket Client stop]");
+        LOGGER.info("[WebSocket Client stop]");
         if (isRunning) {
             stopClient();
             isRunning = false;
@@ -90,26 +95,25 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
 
     @OnOpen
     public void onWebSocketConnect(Session session){
-        System.out.println("[WebSocket Client open session] " + session.getRequestURI());
+        LOGGER.log(Level.INFO, "[WebSocket Client open session] {0}", session.getRequestURI());
         this.session = session;
     }
 
     @OnMessage
     public void onWebSocketText(String message, Session session){
         this.message = message;
-        System.out.println("[WebSocket Client message received] " + message);
+        LOGGER.log(Level.INFO, "[WebSocket Client message received] {0}", message);
         processMessage(message);
     }
 
     @OnError
     public void onWebSocketError(Session session, Throwable cause) {
-        System.out.println("[WebSocket Client connection error] " + cause.toString());
+        LOGGER.log(Level.SEVERE, "[WebSocket Client connection error] {0}", cause.toString());
     }
     
     @OnClose
     public void onWebSocketClose(CloseReason reason){
-        System.out.print("[WebSocket Client close session] " + session.getRequestURI());
-        System.out.println(" for reason " + reason);
+        LOGGER.log(Level.INFO, "[WebSocket Client close session] {0} for reason {1}", new Object[]{session.getRequestURI(), reason});
         session = null;
     }
 
@@ -131,11 +135,6 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
         requestMove.setDirection(direction);
 
         sendMessageToServer(messageCreator.createMessage(MessageOperationType.SEND_MOVE, requestMove));
-    }
-
-    @Override
-    public void position(int row, int column) {
-
     }
 
     @Override
@@ -179,10 +178,10 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
      * Start a WebSocket client.
      */
     private void startClient() {
-        System.out.println("[WebSocket Client start]");
+        LOGGER.info("[WebSocket Client start]");
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            container.connectToServer(this, new URI(uri));
+            container.connectToServer(this, new URI(URI));
             
         } catch (IOException | URISyntaxException | DeploymentException ex) {
             // do something useful eventually
@@ -194,7 +193,7 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
      * Stop the client when it is running.
      */
     private void stopClient(){
-        System.out.println("[WebSocket Client stop]");
+        LOGGER.info("[WebSocket Client stop]");
         try {
             session.close();
 
@@ -213,7 +212,7 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
             wsMessage = gson.fromJson(jsonMessage, MessageOperation.class);
         }
         catch (JsonSyntaxException ex) {
-            System.out.println("[WebSocket Client ERROR: cannot parse Json message " + jsonMessage);
+            LOGGER.log(Level.SEVERE, "[WebSocket Client ERROR: cannot parse Json message {0}", jsonMessage);
             return;
         }
         
@@ -221,14 +220,14 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
         MessageOperationType operation;
         operation = wsMessage.getOperation();
         if (operation == null) {
-            System.out.println("[WebSocket Client ERROR: update property operation expected]");
+            LOGGER.log(Level.SEVERE, "[WebSocket Client ERROR: update property operation expected]");
             return;
         }
         
         // Obtain property from message
         String property = wsMessage.getProperty();
         if (property == null || "".equals(property)) {
-            System.out.println("[WebSocket Client ERROR: property not defined]");
+            LOGGER.log(Level.SEVERE, "[WebSocket Client ERROR: property not defined]");
             return;
         }
         

@@ -1,9 +1,8 @@
 package shared.messages.request;
 
-import lombok.Data;
 import shared.messages.BaseMessage;
 
-public class RequestStart extends BaseMessage {
+public class RequestStart implements BaseMessage {
     private boolean start;
 
     public boolean isStart() {

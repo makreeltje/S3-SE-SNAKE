@@ -49,11 +49,10 @@ public class SnakeServer {
             wscontainer.addEndpoint(SnakeServerWebSocket.class);
 
             webSocketServer.start();
-            //server.dump(System.err);
 
             webSocketServer.join();
-        } catch (Throwable t) {
-            t.printStackTrace(System.err);
+        } catch (Exception e) {
+            e.getMessage();
         }
     }
 }

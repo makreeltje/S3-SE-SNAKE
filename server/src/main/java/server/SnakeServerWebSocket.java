@@ -53,27 +53,26 @@ public class SnakeServerWebSocket {
 
     @OnOpen
     public void onConnect(Session session) {
-        LOGGER.info("[WebSocket Connected] SessionID: " + session.getId());
-        String message = format("[New client with client side session ID]: %s", session.getId());
+        LOGGER.log(Level.INFO, "[WebSocket Connected] SessionID: {0}", session.getId());
         sessions.add(session);
-        LOGGER.info(format("[#sessions]: %d", sessions.size()));
+        LOGGER.log(Level.INFO, "[#sessions]: {0}", players.getPlayerList().size());
     }
 
     @OnMessage
     public void onText(String message, Session session) {
-        LOGGER.info(format("[WebSocket Session ID] : %s [Received] : %s", session.getId(), message));
+        LOGGER.log(Level.INFO, "[WebSocket Session ID] : {0} [Received] : {1}", new Object[]{session.getId(), message});
         handleMessageFromClient(message, session);
     }
 
     @OnClose
     public void onClose(CloseReason reason, Session session) {
-        LOGGER.info(format("[WebSocket Session ID] : %s [Socket Closed]: %s", session.getId(), reason));
+        LOGGER.log(Level.INFO, "[WebSocket Session ID] : {0} [Socket Closed]: {1}", new Object[]{session.getId(), reason});
         sessions.remove(session);
     }
 
     @OnError
     public void onError(Throwable cause, Session session) {
-        LOGGER.log(Level.SEVERE, format("[WebSocket Session ID] : %s[ERROR]: ", session.getId()));
+        LOGGER.log(Level.SEVERE, "[WebSocket Session ID] : {0} [ERROR]: ", session.getId());
         LOGGER.log(Level.SEVERE, cause.getMessage());
     }
 
@@ -84,7 +83,7 @@ public class SnakeServerWebSocket {
         try {
             wbMessage = gson.fromJson(jsonMessage, MessageOperation.class);
         } catch (JsonSyntaxException ex) {
-            LOGGER.log(Level.INFO, format("[WebSocket ERROR: cannot parse Json message %s", jsonMessage));
+            LOGGER.log(Level.INFO, "[WebSocket ERROR: cannot parse Json message {0}", jsonMessage);
             return;
         }
 
@@ -100,7 +99,7 @@ public class SnakeServerWebSocket {
                     players.addPlayer(new Player(session, registerMessage.getUsername(), registerMessage.getSinglePlayer(), new Snake()));
 
                     // Send the message to all clients that are subscribed to this property
-                    LOGGER.info(String.format("[WebSocket send ] %s to:", jsonMessage));
+                    LOGGER.log(Level.INFO, "[WebSocket send ] {0} to:", jsonMessage);
                     break;
                 case SEND_MOVE:
                     RequestMove requestMove = (RequestMove) message;
@@ -125,21 +124,8 @@ public class SnakeServerWebSocket {
                     RequestFruit requestFruit = (RequestFruit) message;
                     game.generateFruit(requestFruit.getFruitCount());
                     break;
-
-                /*case UPDATEPROPERTY:
-                    // Send the message to all clients that are subscribed to this property
-                    if (propertySessions.get(message.getProperty()) != null) {
-                        LOGGER.info("[WebSocket send ] " + jsonMessage + " to:");
-                        for (Session sess : propertySessions.get(message.getProperty())) {
-                            // Use asynchronous communication
-                            LOGGER.info("\t\t >> Client associated with server side session ID: " + sess.getId());
-                            sess.getAsyncRemote().sendText(jsonMessage);
-                        }
-                        LOGGER.info("[WebSocket end sending message to subscribers]");
-                    }
-                    break;*/
                 default:
-                    LOGGER.log(Level.SEVERE, String.format("[WebSocket ERROR: cannot process Json message %s", jsonMessage));
+                    LOGGER.log(Level.SEVERE, "[WebSocket ERROR: cannot process Json message {0}", jsonMessage);
                     break;
             }
         }

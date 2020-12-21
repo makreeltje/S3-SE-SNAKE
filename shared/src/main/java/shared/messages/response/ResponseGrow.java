@@ -1,10 +1,9 @@
 package shared.messages.response;
 
-import lombok.Data;
 import shared.messages.BaseMessage;
 import shared.messages.CellType;
 
-public class ResponseGrow extends BaseMessage {
+public class ResponseGrow implements BaseMessage {
     private int row;
     private int column;
     private CellType cellType;
