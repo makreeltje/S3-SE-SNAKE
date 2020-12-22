@@ -2,7 +2,7 @@
 <project version="4">
   <component name="SonarLintProjectSettings">
     <option name="bindingEnabled" value="true" />
-    <option name="projectKey" value="SnakeXI" />
+    <option name="projectKey" value="fhict:S3-SE-SNAKE" />
     <option name="serverId" value="Meelsnet" />
   </component>
 </project>

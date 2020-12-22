@@ -1,22 +1,21 @@
 package server.service;
 
+import server.models.Board;
 import server.models.Cell;
+import server.models.CellType;
 import server.models.Player;
 
 public class Snakes {
 
-    public void grow(Player player) {
-
-        Cell cell = getNextCell(player);
-
-        player.getSnake().addSnakePart(cell);
-
-    }
-
-    public void move(Player player) {
+    public boolean move(Player player, Board board) {
         Cell cell = getNextCell(player);
         player.getSnake().addSnakePart(cell);
-        player.getSnake().removeTailSnake();
+        if (board.getCellType(player.getSnake().getHeadSnake().getColumn(), player.getSnake().getHeadSnake().getRow()) != CellType.FRUIT) {
+            player.getSnake().removeTailSnake();
+            return false;
+        }
+        board.setCellType(player.getSnake().getHeadSnake().getColumn(), player.getSnake().getHeadSnake().getRow(), CellType.EMPTY);
+        return true;
     }
 
     private Cell getNextCell(Player player) {

@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import server.models.Board;
 import server.models.Player;
 import server.models.Snake;
 import server.service.Game;
@@ -45,10 +46,12 @@ public class SnakeServerWebSocket {
     private static final Logger LOGGER = Logger.getLogger(SnakeServerWebSocket.class.getName());
 
     // All sessions
+    private static final int FRUIT = 3;
     private static final List<Session> sessions = new ArrayList<>();
     private static final Players players = new Players();
     private static final Timer timer = new Timer();
     private static final Game game = new Game();
+    private static final Board board = new Board(75, 40);
     private MessageCreator messageCreator = new MessageCreator();
 
     @OnOpen
@@ -93,7 +96,7 @@ public class SnakeServerWebSocket {
         // Operation defined in message
         if (null != wbMessage.getOperation()) {
             switch (wbMessage.getOperation()) {
-                case REGISTER_PROPERTY:
+                case SEND_REGISTER:
                     RequestRegister registerMessage = (RequestRegister) message;
                     // Register property if not registered yet
                     players.addPlayer(new Player(session, registerMessage.getUsername(), registerMessage.getSinglePlayer(), new Snake()));
@@ -111,18 +114,20 @@ public class SnakeServerWebSocket {
                     player = players.getPlayerBySession(session);
                     player.setReady(requestStart.isStart());
 
-                    if(players.getPlayerList().stream().allMatch(Player::isReady)) {
+                    if (players.getPlayerList().stream().allMatch(Player::isReady)) {
+                        game.generateFruit(players, board, FRUIT);
                         timer.schedule(new TimerTask() {
                             @Override
                             public void run() {
-                                game.updateBoard(players.getPlayerList());
+                                // TODO: Make update board that it uses the actual board
+                                game.updateBoard(players, board);
                             }
                         }, game.getTicks(), game.getTicks());
                     }
                     break;
                 case SEND_GENERATE_FRUIT:
                     RequestFruit requestFruit = (RequestFruit) message;
-                    game.generateFruit(requestFruit.getFruitCount());
+
                     break;
                 default:
                     LOGGER.log(Level.SEVERE, "[WebSocket ERROR: cannot process Json message {0}", jsonMessage);

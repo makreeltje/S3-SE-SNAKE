@@ -6,6 +6,8 @@ import shared.messages.CellType;
 public class ResponseMove implements BaseMessage {
     private int row;
     private int column;
+    private boolean ateFruit;
+
     private CellType cellType;
 
     public int getRow() {
@@ -22,6 +24,14 @@ public class ResponseMove implements BaseMessage {
 
     public void setColumn(int column) {
         this.column = column;
+    }
+
+    public boolean isAteFruit() {
+        return ateFruit;
+    }
+
+    public void setAteFruit(boolean ateFruit) {
+        this.ateFruit = ateFruit;
     }
 
     public CellType getCellType() {

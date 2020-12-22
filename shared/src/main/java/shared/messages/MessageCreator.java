@@ -5,6 +5,7 @@ import shared.messages.request.RequestFruit;
 import shared.messages.request.RequestMove;
 import shared.messages.request.RequestRegister;
 import shared.messages.request.RequestStart;
+import shared.messages.response.ResponseGeneratedFruit;
 import shared.messages.response.ResponseMove;
 
 public class MessageCreator {
@@ -14,7 +15,7 @@ public class MessageCreator {
     public BaseMessage createResult(MessageOperation message) {
         BaseMessage result;
         switch (message.getOperation()) {
-            case REGISTER_PROPERTY:
+            case SEND_REGISTER:
                 result = gson.fromJson(message.getProperty(), RequestRegister.class);
                 break;
             case SEND_MOVE:
@@ -23,11 +24,14 @@ public class MessageCreator {
             case SEND_READY:
                 result = gson.fromJson(message.getProperty(), RequestStart.class);
                 break;
+            case SEND_GENERATE_FRUIT:
+                result = gson.fromJson(message.getProperty(), RequestFruit.class);
+                break;
             case RECEIVE_MOVE:
                 result = gson.fromJson(message.getProperty(), ResponseMove.class);
                 break;
-            case SEND_GENERATE_FRUIT:
-                result = gson.fromJson(message.getProperty(), RequestFruit.class);
+            case RECEIVE_GENERATE_FRUIT:
+                result = gson.fromJson(message.getProperty(), ResponseGeneratedFruit.class);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + message);

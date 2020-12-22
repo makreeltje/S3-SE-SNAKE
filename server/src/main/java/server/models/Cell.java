@@ -1,6 +1,5 @@
 package server.models;
 
-import lombok.Data;
 
 public class Cell {
     private int row;
