@@ -16,8 +16,6 @@ import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static java.text.MessageFormat.format;
-
 // https://github.com/jetty-project/embedded-jetty-websocket-examples/tree/master/javax.websocket-example/src/main/java/org/eclipse/jetty/demo
 
 /**
@@ -124,7 +122,7 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
         requestRegister.setUsername(username);
         requestRegister.setSinglePlayer(singlePlayer);
 
-        sendMessageToServer(messageCreator.createMessage(MessageOperationType.REGISTER_PROPERTY, requestRegister));
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.SEND_REGISTER, requestRegister));
 
     }
 

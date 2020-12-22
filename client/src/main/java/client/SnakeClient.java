@@ -19,6 +19,7 @@ import javafx.stage.Stage;
 import shared.messages.Direction;
 import shared.messages.MessageCreator;
 import shared.messages.MessageOperation;
+import shared.messages.response.ResponseGeneratedFruit;
 import shared.messages.response.ResponseMove;
 
 import java.util.ArrayList;
@@ -151,7 +152,7 @@ public class SnakeClient extends Application implements Observer {
         loginMenu.setVisible(false);
         mainMenu.setVisible(true);
 
-        //TODO: REST call to register player to database
+        // TODO: REST call to register player to database
 
         username = txtUsername.getText();
 
@@ -200,6 +201,7 @@ public class SnakeClient extends Application implements Observer {
     }
 
     private void updatePosition(int row, int column, boolean ateFruit) {
+        // TODO: Remove the use of a cellList (reason: duplicate code)
         cellList.add(new client.models.Cell(row, column, CellType.SNAKE));
         playingFieldArea[cellList.get(0).getColumn()][cellList.get(0).getRow()].setFill(Color.web("#424242"));
         if (!ateFruit)
@@ -209,6 +211,10 @@ public class SnakeClient extends Application implements Observer {
 
     private void drawSnake() {
         cellList.forEach(cell -> playingFieldArea[cell.getColumn()][cell.getRow()].setFill(Color.RED));
+    }
+
+    private void placeFruit(int row, int column) {
+        playingFieldArea[row][column].setFill(Color.YELLOW);
     }
 
     public void endGame(){
@@ -223,10 +229,16 @@ public class SnakeClient extends Application implements Observer {
         switch (message.getOperation()) {
             case RECEIVE_MOVE:
                 ResponseMove messageMove =  (ResponseMove) messageCreator.createResult(message);
-                updatePosition(messageMove.getRow(), messageMove.getColumn(), false);
+                updatePosition(messageMove.getRow(), messageMove.getColumn(), messageMove.isAteFruit());
                 break;
             case RECEIVE_GROW:
 
+                break;
+            case RECEIVE_GENERATE_FRUIT:
+                ResponseGeneratedFruit responseGeneratedFruit = (ResponseGeneratedFruit) messageCreator.createResult(message);
+                for (int i = 0; i < responseGeneratedFruit.getColumn().size(); i++) {
+                    placeFruit(responseGeneratedFruit.getRow().get(i), responseGeneratedFruit.getColumn().get(i));
+                }
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + message.getOperation());
