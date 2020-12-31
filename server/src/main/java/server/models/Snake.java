@@ -7,7 +7,7 @@ public class Snake {
     private List<Cell> snakeParts = new ArrayList<>();
 
     public Snake() {
-        addSnakePart(new Cell(0, 0, CellType.SNAKE));
+        addSnakePart(new Cell(0, 0));
     }
 
     public List<Cell> getSnakeParts() {

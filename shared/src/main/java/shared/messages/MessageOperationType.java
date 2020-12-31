@@ -10,11 +10,13 @@ package shared.messages;
  * @author Nico Kuijpers
  */
 public enum MessageOperationType {
-    SEND_REGISTER,         // Register a property (client only)
-    SEND_MOVE,
-    SEND_READY,
-    SEND_GENERATE_FRUIT,
-    RECEIVE_MOVE,
-    RECEIVE_GROW,
-    RECEIVE_GENERATE_FRUIT,
+    REQUEST_REGISTER,         // Register a property (client only)
+    REQUEST_MOVE,
+    REQUEST_READY,
+    REQUEST_GENERATE_FRUIT,
+    RESPONSE_REGISTER,
+    RESPONSE_MOVE,
+    RESPONSE_GROW,
+    RESPONSE_GENERATE_FRUIT,
+    RESPONSE_START,
 }

@@ -18,6 +18,7 @@ public class Player {
         this.username = username;
         this.singlePlayer = singlePlayer;
         this.snake = snake;
+        this.direction = Direction.RIGHT;
     }
 
     public void setDirection(Direction direction) {

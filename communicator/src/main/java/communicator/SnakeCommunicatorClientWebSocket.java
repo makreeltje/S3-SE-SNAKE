@@ -122,7 +122,7 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
         requestRegister.setUsername(username);
         requestRegister.setSinglePlayer(singlePlayer);
 
-        sendMessageToServer(messageCreator.createMessage(MessageOperationType.SEND_REGISTER, requestRegister));
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.REQUEST_REGISTER, requestRegister));
 
     }
 
@@ -132,21 +132,20 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
 
         requestMove.setDirection(direction);
 
-        sendMessageToServer(messageCreator.createMessage(MessageOperationType.SEND_MOVE, requestMove));
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.REQUEST_MOVE, requestMove));
     }
 
     @Override
-    public void ready(boolean ready) {
+    public void toggleReady() {
         RequestStart requestStart = new RequestStart();
-        requestStart.setStart(ready);
-        sendMessageToServer(messageCreator.createMessage(MessageOperationType.SEND_READY, requestStart));
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.REQUEST_READY, requestStart));
     }
 
     @Override
     public void generateFruits(int fruitCount) {
         RequestFruit requestFruit = new RequestFruit();
         requestFruit.setFruitCount(fruitCount);
-        sendMessageToServer(messageCreator.createMessage(MessageOperationType.SEND_GENERATE_FRUIT, requestFruit));
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.REQUEST_GENERATE_FRUIT, requestFruit));
     }
 
 
