@@ -4,12 +4,10 @@ package server.models;
 public class Cell {
     private int row;
     private int column;
-    private CellType cellType;
 
-    public Cell(int row, int column, CellType cellType) {
+    public Cell(int row, int column) {
         this.row = row;
         this.column = column;
-        this.cellType = cellType;
     }
 
     public int getRow() {
@@ -26,13 +24,5 @@ public class Cell {
 
     public void setColumn(int column) {
         this.column = column;
-    }
-
-    public CellType getCellType() {
-        return cellType;
-    }
-
-    public void setCellType(CellType cellType) {
-        this.cellType = cellType;
     }
 }

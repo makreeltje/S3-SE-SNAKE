@@ -2,12 +2,16 @@ package server.service;
 
 import com.google.gson.Gson;
 import server.models.Board;
-import server.models.CellType;
+import server.models.Player;
 import shared.messages.MessageCreator;
 import shared.messages.MessageOperationType;
 import shared.messages.response.ResponseGeneratedFruit;
 import shared.messages.response.ResponseMove;
+import shared.messages.response.ResponseStart;
 
+import javax.websocket.Session;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Game {
@@ -19,40 +23,62 @@ public class Game {
     private int ticks = 100;
 
     public void updateBoard(Players players, Board board) {
-        ResponseMove responseMove = new ResponseMove();
-
+        List<ResponseMove> responseMoveList = new ArrayList<>();
         players.getPlayerList().forEach(player -> {
+            ResponseMove responseMove = new ResponseMove();
             if (snakes.move(player, board)){
-                responseMove.setAteFruit(true);
+//                responseMove.setAteFruit(true);
                 generateFruit(players, board, 1);
             } else {
-                responseMove.setAteFruit(false);
+//                responseMove.setAteFruit(false);
             }
-            responseMove.setRow(player.getSnake().getHeadSnake().getRow());
-            responseMove.setColumn(player.getSnake().getHeadSnake().getColumn());
-            responseMove.setIndexCellType(player.getSnake().getHeadSnake().getCellType().ordinal());
-            player.getSession().getAsyncRemote().sendText(GSON.toJson(MESSAGE_CREATOR.createMessage(MessageOperationType.RECEIVE_MOVE, responseMove)));
+
+            player.getSnake().getSnakeParts().forEach(c -> board.setCellValue(c.getRow(), c.getColumn(), Integer.parseInt(player.getSession().getId())));
+
+            responseMove.setCells(board.getBoard());
+
+            responseMove.setPlayerId(Integer.parseInt(player.getSession().getId()));
+            responseMoveList.add(responseMove);
+        });
+
+        players.getPlayerList().forEach(player -> {
+            for (ResponseMove responseMove: responseMoveList) {
+                player.getSession().getAsyncRemote().sendText(GSON.toJson(MESSAGE_CREATOR.createMessage(MessageOperationType.RESPONSE_MOVE, responseMove)));
+            }
         });
     }
 
     public void generateFruit(Players players, Board board, int fruitCount) {
-        ResponseGeneratedFruit responseGeneratedFruit = new ResponseGeneratedFruit();
 
         for (int i = 0; i < fruitCount; i++) {
             boolean fruitPlaced = false;
             while (!fruitPlaced) {
-                int col = RANDOM.nextInt(40);
-                int row = RANDOM.nextInt(75);
+                int row = RANDOM.nextInt(40);
+                int col = RANDOM.nextInt(75);
 
-                if (board.getCellType(row, col) != CellType.FRUIT) {
-                    board.setCellType(row, col, CellType.FRUIT);
+                if (board.getCellValue(row, col) != 9) {
+                    board.setCellValue(row, col, 9);
                     fruitPlaced = true;
-                    responseGeneratedFruit.addColumn(col);
-                    responseGeneratedFruit.addRow(row);
                 }
             }
         }
-        players.getPlayerList().forEach(s -> s.getSession().getAsyncRemote().sendText(GSON.toJson(MESSAGE_CREATOR.createMessage(MessageOperationType.RECEIVE_GENERATE_FRUIT, responseGeneratedFruit))));
+    }
+
+    public void toggleReady(Players players, Session session) {
+        Player player = players.getPlayerBySession(session);
+
+        player.setReady(!player.isReady());
+
+        //TODO: something broke, not sure
+        ResponseStart responseStart = new ResponseStart();
+
+//        players.getPlayerList().forEach(p -> {
+//            responseStart.addId(Integer.parseInt(p.getSession().getId()));
+//            responseStart.addName(p.getUsername());
+//            responseStart.addReady(p.isReady());
+//
+//            p.getSession().getAsyncRemote().sendText(GSON.toJson(MESSAGE_CREATOR.createMessage(MessageOperationType.RESPONSE_START, responseStart)));
+//        });
     }
 
     public int getTicks() {

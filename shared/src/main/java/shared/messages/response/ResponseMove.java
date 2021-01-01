@@ -3,46 +3,27 @@ package shared.messages.response;
 import shared.messages.BaseMessage;
 import shared.messages.CellType;
 
+import java.util.List;
+
 public class ResponseMove implements BaseMessage {
-    private int row;
-    private int column;
-    private boolean ateFruit;
+    private int[][] cells = new int[75][40];
 
-    private CellType cellType;
+    private int playerId;
 
-    public int getRow() {
-        return row;
+
+    public int[][] getCells() {
+        return cells;
     }
 
-    public void setRow(int row) {
-        this.row = row;
+    public void setCells(int[][] cells) {
+        this.cells = cells;
     }
 
-    public int getColumn() {
-        return column;
+    public int getPlayerId() {
+        return playerId;
     }
 
-    public void setColumn(int column) {
-        this.column = column;
-    }
-
-    public boolean isAteFruit() {
-        return ateFruit;
-    }
-
-    public void setAteFruit(boolean ateFruit) {
-        this.ateFruit = ateFruit;
-    }
-
-    public CellType getCellType() {
-        return cellType;
-    }
-
-    public void setCellType(CellType cellType) {
-        this.cellType = cellType;
-    }
-
-    public CellType setIndexCellType(int index) {
-        return CellType.values()[index];
+    public void setPlayerId(int playerId) {
+        this.playerId = playerId;
     }
 }

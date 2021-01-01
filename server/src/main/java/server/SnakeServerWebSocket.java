@@ -10,10 +10,11 @@ import server.service.Players;
 import shared.messages.BaseMessage;
 import shared.messages.MessageCreator;
 import shared.messages.MessageOperation;
+import shared.messages.MessageOperationType;
 import shared.messages.request.RequestFruit;
 import shared.messages.request.RequestMove;
 import shared.messages.request.RequestRegister;
-import shared.messages.request.RequestStart;
+import shared.messages.response.ResponseRegister;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
@@ -51,7 +52,7 @@ public class SnakeServerWebSocket {
     private static final Players players = new Players();
     private static final Timer timer = new Timer();
     private static final Game game = new Game();
-    private static final Board board = new Board(75, 40);
+    private static final Board board = new Board(40, 75);
     private MessageCreator messageCreator = new MessageCreator();
 
     @OnOpen
@@ -96,38 +97,36 @@ public class SnakeServerWebSocket {
         // Operation defined in message
         if (null != wbMessage.getOperation()) {
             switch (wbMessage.getOperation()) {
-                case SEND_REGISTER:
+                case REQUEST_REGISTER:
                     RequestRegister registerMessage = (RequestRegister) message;
                     // Register property if not registered yet
                     players.addPlayer(new Player(session, registerMessage.getUsername(), registerMessage.getSinglePlayer(), new Snake()));
 
+                    ResponseRegister responseRegister = new ResponseRegister();
+                    responseRegister.setPlayerId(Integer.parseInt(players.getPlayerBySession(session).getSession().getId()));
+
+                    session.getAsyncRemote().sendText(gson.toJson(messageCreator.createMessage(MessageOperationType.RESPONSE_REGISTER, responseRegister)));
+
                     // Send the message to all clients that are subscribed to this property
                     LOGGER.log(Level.INFO, "[WebSocket send ] {0} to:", jsonMessage);
                     break;
-                case SEND_MOVE:
+                case REQUEST_MOVE:
                     RequestMove requestMove = (RequestMove) message;
                     Player player = players.getPlayerBySession(session);
                     player.setDirection(requestMove.getDirection());
                     break;
-                case SEND_READY:
-                    RequestStart requestStart = (RequestStart) message;
-                    player = players.getPlayerBySession(session);
-                    player.setReady(requestStart.isStart());
+                case REQUEST_READY:
+                    game.toggleReady(players, session);
 
                     if (players.getPlayerList().stream().allMatch(Player::isReady)) {
                         game.generateFruit(players, board, FRUIT);
                         timer.schedule(new TimerTask() {
                             @Override
                             public void run() {
-                                // TODO: Make update board that it uses the actual board
                                 game.updateBoard(players, board);
                             }
                         }, game.getTicks(), game.getTicks());
                     }
-                    break;
-                case SEND_GENERATE_FRUIT:
-                    RequestFruit requestFruit = (RequestFruit) message;
-
                     break;
                 default:
                     LOGGER.log(Level.SEVERE, "[WebSocket ERROR: cannot process Json message {0}", jsonMessage);

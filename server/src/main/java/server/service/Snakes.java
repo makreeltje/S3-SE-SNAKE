@@ -2,7 +2,6 @@ package server.service;
 
 import server.models.Board;
 import server.models.Cell;
-import server.models.CellType;
 import server.models.Player;
 
 public class Snakes {
@@ -10,17 +9,18 @@ public class Snakes {
     public boolean move(Player player, Board board) {
         Cell cell = getNextCell(player);
         player.getSnake().addSnakePart(cell);
-        if (board.getCellType(player.getSnake().getHeadSnake().getColumn(), player.getSnake().getHeadSnake().getRow()) != CellType.FRUIT) {
+        if (board.getCellValue(player.getSnake().getHeadSnake().getRow(), player.getSnake().getHeadSnake().getColumn()) == 0) {
+            board.setCellValue(player.getSnake().getTailSnake().getRow(), player.getSnake().getTailSnake().getColumn(), 0);
             player.getSnake().removeTailSnake();
             return false;
         }
-        board.setCellType(player.getSnake().getHeadSnake().getColumn(), player.getSnake().getHeadSnake().getRow(), CellType.EMPTY);
+        board.setCellValue(player.getSnake().getHeadSnake().getRow(), player.getSnake().getHeadSnake().getColumn(), 0);
         return true;
     }
 
     private Cell getNextCell(Player player) {
 
-        Cell cell = player.getSnake().getHeadSnake();
+        Cell cell = new Cell(player.getSnake().getHeadSnake().getRow(), player.getSnake().getHeadSnake().getColumn());
 
         // TODO: Check if cell is getting out of bounds
 

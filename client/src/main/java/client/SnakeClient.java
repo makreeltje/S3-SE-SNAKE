@@ -1,7 +1,5 @@
 package client;
 
-import client.models.Cell;
-import client.models.CellType;
 import communicator.SnakeCommunicator;
 import communicator.SnakeCommunicatorClientWebSocket;
 import javafx.application.Application;
@@ -21,9 +19,9 @@ import shared.messages.MessageCreator;
 import shared.messages.MessageOperation;
 import shared.messages.response.ResponseGeneratedFruit;
 import shared.messages.response.ResponseMove;
+import shared.messages.response.ResponseRegister;
+import shared.messages.response.ResponseStart;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
@@ -36,7 +34,7 @@ public class SnakeClient extends Application implements Observer {
     private static final int FRUITS = 3;
 
 
-    private static final double RECTANGLE_SIZE = 20;
+    private static final double RECTANGLE_SIZE = 15;
     private static final int NR_SQUARES_HORIZONTAL = 75;
     private static final int NR_SQUARES_VERTICAL = 40;
 
@@ -44,6 +42,7 @@ public class SnakeClient extends Application implements Observer {
 
     private VBox mainMenu = new VBox(20);
     private VBox loginMenu = new VBox(20);
+    private VBox playersMenu = new VBox(20);
     private Scene scene;
     private StackPane layout = new StackPane();
 
@@ -56,20 +55,20 @@ public class SnakeClient extends Application implements Observer {
     private Button btnHistory = new Button("History");
     private Button btnLogout = new Button("Exit");
 
+    private Label lblPlayer1 = new Label();
+    private Label lblPlayer2 = new Label();
+
     private Rectangle[][] playingFieldArea;
 
     private SnakeCommunicator communicator = null;
 
     private String username;
-
-    private List<Cell> cellList = new ArrayList<>();
+    private int playerId;
 
     @Override
     public void start(Stage stage) throws Exception {
         LOGGER.info("Snake Client started");
         stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream("snake-icon.png")));
-
-        cellList.add(new Cell(0,0, CellType.SNAKE));
 
         Group root = new Group();
         scene = new Scene(root, NR_SQUARES_HORIZONTAL * RECTANGLE_SIZE,NR_SQUARES_VERTICAL * RECTANGLE_SIZE);
@@ -129,6 +128,10 @@ public class SnakeClient extends Application implements Observer {
         mainMenu.setAlignment(Pos.CENTER);
         mainMenu.getChildren().addAll(btnSinglePlayer, btnMultiPlayer, btnHistory, btnLogout);
         mainMenu.setVisible(false);
+        playersMenu.setAlignment(Pos.CENTER);
+        playersMenu.getChildren().addAll(lblPlayer1, lblPlayer2);
+        playersMenu.setVisible(false);
+
 
         StackPane glass = new StackPane();
         glass.getChildren().addAll(label, loginMenu, mainMenu);
@@ -160,14 +163,16 @@ public class SnakeClient extends Application implements Observer {
     }
 
     private void startGame(boolean singlePlayer) {
+        mainMenu.setVisible(false);
+        //playersMenu.setVisible(true);
         layout.setVisible(false);
+
 
         communicator = SnakeCommunicatorClientWebSocket.getInstance();
         communicator.addObserver(this);
         communicator.start();
 
         communicator.register(username, singlePlayer);
-        drawSnake();
         communicator.generateFruits(FRUITS);
         scene.setOnKeyPressed(SnakeClient.this::keyPressed);
 
@@ -176,23 +181,27 @@ public class SnakeClient extends Application implements Observer {
     public void keyPressed(KeyEvent keyEvent) {
         switch (keyEvent.getCode()) {
             case KP_UP:
+            case UP:
             case W:
                 communicator.move(Direction.UP);
                 break;
             case KP_DOWN:
+            case DOWN:
             case S:
                 communicator.move(Direction.DOWN);
                 break;
             case KP_LEFT:
+            case LEFT:
             case A:
                 communicator.move(Direction.LEFT);
                 break;
             case KP_RIGHT:
+            case RIGHT:
             case D:
                 communicator.move(Direction.RIGHT);
                 break;
             case SPACE:
-                communicator.ready(true);
+                communicator.toggleReady();
                 break;
             default:
                 break;
@@ -200,17 +209,23 @@ public class SnakeClient extends Application implements Observer {
 
     }
 
-    private void updatePosition(int row, int column, boolean ateFruit) {
-        // TODO: Remove the use of a cellList (reason: duplicate code)
-        cellList.add(new client.models.Cell(row, column, CellType.SNAKE));
-        playingFieldArea[cellList.get(0).getColumn()][cellList.get(0).getRow()].setFill(Color.web("#424242"));
-        if (!ateFruit)
-            cellList.remove(0);
-        drawSnake();
+    private void updatePosition(int playerId, int[][] cells) {
+        for (int column = 0; column < NR_SQUARES_HORIZONTAL; column++) {
+            for (int row = 0; row < NR_SQUARES_VERTICAL; row++) {
+                if (cells[row][column] == 0)
+                    playingFieldArea[column][row].setFill(Color.web("#424242"));
+                else if (cells[row][column] == this.playerId)
+                    playingFieldArea[column][row].setFill(Color.GREEN);
+                else if (isBetween(cells[row][column], 1, 8))
+                    playingFieldArea[column][row].setFill(Color.DARKGREEN);
+                else if (cells[row][column] == 9)
+                    playingFieldArea[column][row].setFill(Color.YELLOW);
+            }
+        }
     }
 
-    private void drawSnake() {
-        cellList.forEach(cell -> playingFieldArea[cell.getColumn()][cell.getRow()].setFill(Color.RED));
+    private static boolean isBetween(int x, int lower, int upper) {
+        return lower <= x && x <= upper;
     }
 
     private void placeFruit(int row, int column) {
@@ -227,14 +242,15 @@ public class SnakeClient extends Application implements Observer {
         MessageCreator messageCreator = new MessageCreator();
 
         switch (message.getOperation()) {
-            case RECEIVE_MOVE:
-                ResponseMove messageMove =  (ResponseMove) messageCreator.createResult(message);
-                updatePosition(messageMove.getRow(), messageMove.getColumn(), messageMove.isAteFruit());
+            case RESPONSE_REGISTER:
+                ResponseRegister responseRegister = (ResponseRegister) messageCreator.createResult(message);
+                playerId = responseRegister.getPlayerId();
                 break;
-            case RECEIVE_GROW:
-
+            case RESPONSE_MOVE:
+                ResponseMove messageMove = (ResponseMove) messageCreator.createResult(message);
+                updatePosition(messageMove.getPlayerId(), messageMove.getCells());
                 break;
-            case RECEIVE_GENERATE_FRUIT:
+            case RESPONSE_GENERATE_FRUIT:
                 ResponseGeneratedFruit responseGeneratedFruit = (ResponseGeneratedFruit) messageCreator.createResult(message);
                 for (int i = 0; i < responseGeneratedFruit.getColumn().size(); i++) {
                     placeFruit(responseGeneratedFruit.getRow().get(i), responseGeneratedFruit.getColumn().get(i));

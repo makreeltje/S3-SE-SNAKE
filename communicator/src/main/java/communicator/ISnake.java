@@ -44,9 +44,8 @@ public interface ISnake {
 
     /**
      * Sets player ready
-     * @param ready
      */
-    void ready(boolean ready);
+    void toggleReady();
 
     /**
      * Generate fruit pieces
