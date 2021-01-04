@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package communicator;
+package communicator.websocket;
 
 import java.util.Observable;
 
@@ -12,6 +12,6 @@ import java.util.Observable;
  * A communicator needs to extend Observable and implement ICommunicator.
  * @author Nico Kuijpers
  */
-public abstract class SnakeCommunicator extends Observable implements ISnake {
+public abstract class SnakeCommunicatorWebSocket extends Observable implements ISnakeWebsocket {
     // Nothing
 }

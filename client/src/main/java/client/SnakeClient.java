@@ -1,7 +1,9 @@
 package client;
 
-import communicator.SnakeCommunicator;
-import communicator.SnakeCommunicatorClientWebSocket;
+import communicator.rest.ISnakeRest;
+import communicator.rest.SnakeCommunicatorClientREST;
+import communicator.websocket.SnakeCommunicatorWebSocket;
+import communicator.websocket.SnakeCommunicatorClientWebSocket;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -20,7 +22,7 @@ import shared.messages.MessageOperation;
 import shared.messages.response.ResponseGeneratedFruit;
 import shared.messages.response.ResponseMove;
 import shared.messages.response.ResponseRegister;
-import shared.messages.response.ResponseStart;
+import shared.rest.Authentication;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -34,22 +36,27 @@ public class SnakeClient extends Application implements Observer {
     private static final int FRUITS = 3;
 
 
-    private static final double RECTANGLE_SIZE = 15;
+    private static final double RECTANGLE_SIZE = 20;
     private static final int NR_SQUARES_HORIZONTAL = 75;
     private static final int NR_SQUARES_VERTICAL = 40;
 
-    private static final int BUTTON_WIDTH = 200;
-
     private VBox mainMenu = new VBox(20);
     private VBox loginMenu = new VBox(20);
+    private VBox registerMenu = new VBox(20);
     private VBox playersMenu = new VBox(20);
     private Scene scene;
     private StackPane layout = new StackPane();
 
-    private TextField txtUsername = new TextField();
-    private PasswordField txtPassword = new PasswordField();
+    private TextField txtUsernameLogin = new TextField();
+    private TextField txtUsernameRegister = new TextField();
+    private PasswordField txtPasswordLogin = new PasswordField();
+    private PasswordField txtPasswordRegister = new PasswordField();
+    private TextField txtEmail = new TextField();
 
     private Button btnLogin = new Button("Login");
+    private Button btnRegister = new Button("Register");
+    private Button btnSignIn = new Button("Sign In");
+    private Button btnSignUp = new Button("Sign Up");
     private Button btnSinglePlayer = new Button("Single Player");
     private Button btnMultiPlayer = new Button("Multi Player");
     private Button btnHistory = new Button("History");
@@ -60,7 +67,9 @@ public class SnakeClient extends Application implements Observer {
 
     private Rectangle[][] playingFieldArea;
 
-    private SnakeCommunicator communicator = null;
+    private SnakeCommunicatorWebSocket communicatorWebSocket = null;
+    private ISnakeRest communicatorREST = new SnakeCommunicatorClientREST();
+
 
     private String username;
     private int playerId;
@@ -71,7 +80,7 @@ public class SnakeClient extends Application implements Observer {
         stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream("snake-icon.png")));
 
         Group root = new Group();
-        scene = new Scene(root, NR_SQUARES_HORIZONTAL * RECTANGLE_SIZE,NR_SQUARES_VERTICAL * RECTANGLE_SIZE);
+        scene = new Scene(root, NR_SQUARES_HORIZONTAL * RECTANGLE_SIZE, NR_SQUARES_VERTICAL * RECTANGLE_SIZE);
         scene.getStylesheets().add(this.getClass().getClassLoader().getResource("style.css").toExternalForm());
 
         // Main playing field
@@ -91,9 +100,17 @@ public class SnakeClient extends Application implements Observer {
         }
 
         Label label = new Label("Snake XI");
-        label.setStyle("-fx-text-fill: #BEBEBE; -fx-font: 5em Consolas; -fx-padding: 0 0 500 0");
+        label.setStyle("-fx-text-fill: #bebebe; -fx-font: 5em Consolas; -fx-padding: 0 0 500 0");
 
         btnLogin.setOnAction(event -> {
+            try {
+                loginPlayer();
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Register Player error: {}", e.getMessage());
+            }
+        });
+
+        btnRegister.setOnAction(event -> {
             try {
                 registerPlayer();
             } catch (Exception e) {
@@ -101,8 +118,22 @@ public class SnakeClient extends Application implements Observer {
             }
         });
 
-        txtUsername.setPromptText("Username...");
-        txtPassword.setPromptText("Password...");
+        btnSignIn.setOnAction(event -> {
+            registerMenu.setVisible(false);
+            loginMenu.setVisible(true);
+            }
+        );
+
+        btnSignUp.setOnAction(event -> {
+            loginMenu.setVisible(false);
+            registerMenu.setVisible(true);
+        });
+
+        txtUsernameLogin.setPromptText("Username...");
+        txtUsernameRegister.setPromptText("Username...");
+        txtEmail.setPromptText("Email...");
+        txtPasswordLogin.setPromptText("Password...");
+        txtPasswordRegister.setPromptText("Password...");
 
         btnSinglePlayer.setOnAction(event -> {
             try {
@@ -120,21 +151,22 @@ public class SnakeClient extends Application implements Observer {
             }
         });
 
-        btnHistory.setPrefWidth(BUTTON_WIDTH);
-        btnLogout.setPrefWidth(BUTTON_WIDTH);
-
-        loginMenu.setAlignment(Pos.CENTER);
-        loginMenu.getChildren().addAll(txtUsername, txtPassword, btnLogin);
+        registerMenu.setAlignment(Pos.CENTER);
+        registerMenu.getChildren().addAll(txtUsernameRegister, txtEmail, txtPasswordRegister, btnRegister, btnSignIn);
+        registerMenu.setVisible(false);
         mainMenu.setAlignment(Pos.CENTER);
         mainMenu.getChildren().addAll(btnSinglePlayer, btnMultiPlayer, btnHistory, btnLogout);
         mainMenu.setVisible(false);
         playersMenu.setAlignment(Pos.CENTER);
         playersMenu.getChildren().addAll(lblPlayer1, lblPlayer2);
         playersMenu.setVisible(false);
+        loginMenu.setAlignment(Pos.CENTER);
+        loginMenu.getChildren().addAll(txtUsernameLogin, txtPasswordLogin, btnLogin, btnSignUp);
+        loginMenu.setVisible(true);
 
 
         StackPane glass = new StackPane();
-        glass.getChildren().addAll(label, loginMenu, mainMenu);
+        glass.getChildren().addAll(label, loginMenu, mainMenu, registerMenu);
 
         glass.setStyle("-fx-background-color: rgba(10, 10, 10, 0.4);");
         glass.setMinWidth(scene.getWidth() - 80);
@@ -151,29 +183,40 @@ public class SnakeClient extends Application implements Observer {
 
     }
 
-    private void registerPlayer() {
+    private void loginPlayer() {
         loginMenu.setVisible(false);
         mainMenu.setVisible(true);
 
-        // TODO: REST call to register player to database
+        communicatorREST.postSignIn(new Authentication(txtUsernameLogin.getText(), txtPasswordLogin.getText()));
 
-        username = txtUsername.getText();
+        username = txtUsernameLogin.getText();
 
 
     }
 
+    private void registerPlayer() {
+        registerMenu.setVisible(false);
+        mainMenu.setVisible(true);
+
+        communicatorREST.postSignUp(new Authentication(txtUsernameRegister.getText(), txtEmail.getText(), txtPasswordRegister.getText()));
+
+        username = txtUsernameRegister.getText();
+    }
+
     private void startGame(boolean singlePlayer) {
         mainMenu.setVisible(false);
-        //playersMenu.setVisible(true);
+
+        //TODO: make players menu visible to know whos in lobby and whos ready, playersMenu.setVisible(true);
+
         layout.setVisible(false);
 
 
-        communicator = SnakeCommunicatorClientWebSocket.getInstance();
-        communicator.addObserver(this);
-        communicator.start();
+        communicatorWebSocket = SnakeCommunicatorClientWebSocket.getInstance();
+        communicatorWebSocket.addObserver(this);
+        communicatorWebSocket.start();
 
-        communicator.register(username, singlePlayer);
-        communicator.generateFruits(FRUITS);
+        communicatorWebSocket.register(username, singlePlayer);
+        communicatorWebSocket.generateFruits(FRUITS);
         scene.setOnKeyPressed(SnakeClient.this::keyPressed);
 
     }
@@ -183,25 +226,25 @@ public class SnakeClient extends Application implements Observer {
             case KP_UP:
             case UP:
             case W:
-                communicator.move(Direction.UP);
+                communicatorWebSocket.move(Direction.UP);
                 break;
             case KP_DOWN:
             case DOWN:
             case S:
-                communicator.move(Direction.DOWN);
+                communicatorWebSocket.move(Direction.DOWN);
                 break;
             case KP_LEFT:
             case LEFT:
             case A:
-                communicator.move(Direction.LEFT);
+                communicatorWebSocket.move(Direction.LEFT);
                 break;
             case KP_RIGHT:
             case RIGHT:
             case D:
-                communicator.move(Direction.RIGHT);
+                communicatorWebSocket.move(Direction.RIGHT);
                 break;
             case SPACE:
-                communicator.toggleReady();
+                communicatorWebSocket.toggleReady();
                 break;
             default:
                 break;
@@ -232,7 +275,7 @@ public class SnakeClient extends Application implements Observer {
         playingFieldArea[row][column].setFill(Color.YELLOW);
     }
 
-    public void endGame(){
+    public void endGame() {
         scene.setOnKeyPressed(null);
     }
 
@@ -259,7 +302,5 @@ public class SnakeClient extends Application implements Observer {
             default:
                 throw new IllegalStateException("Unexpected value: " + message.getOperation());
         }
-
-
     }
 }
