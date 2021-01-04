@@ -1,9 +1,6 @@
 package shared.messages.response;
 
 import shared.messages.BaseMessage;
-import shared.messages.CellType;
-
-import java.util.List;
 
 public class ResponseMove implements BaseMessage {
     private int[][] cells = new int[75][40];

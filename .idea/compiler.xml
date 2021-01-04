@@ -23,11 +23,13 @@
         <module name="server" />
         <module name="shared" />
         <module name="communicator" />
+        <module name="restserver" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="client" target="11" />
       <module name="communicator" target="11" />
+      <module name="restserver" target="11" />
       <module name="S3-SE-SNAKE" target="11" />
       <module name="server" target="11" />
       <module name="shared" target="11" />
@@ -36,6 +38,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="client" options="" />
+      <module name="restserver" options="-parameters" />
     </option>
   </component>
 </project>
