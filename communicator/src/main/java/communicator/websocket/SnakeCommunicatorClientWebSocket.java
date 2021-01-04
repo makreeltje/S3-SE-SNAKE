@@ -1,4 +1,4 @@
-package communicator;
+package communicator.websocket;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  * @author Nico Kuijpers
  */
 @ClientEndpoint
-public class SnakeCommunicatorClientWebSocket extends SnakeCommunicator {
+public class SnakeCommunicatorClientWebSocket extends SnakeCommunicatorWebSocket {
     
     // Singleton
     private static SnakeCommunicatorClientWebSocket instance = null;

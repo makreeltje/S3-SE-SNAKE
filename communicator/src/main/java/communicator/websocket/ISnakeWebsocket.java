@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package communicator;
+package communicator.websocket;
 
 import shared.messages.Direction;
 
@@ -17,7 +17,7 @@ import shared.messages.Direction;
  * 
  * @author Nico Kuijpers
  */
-public interface ISnake {
+public interface ISnakeWebsocket {
     
     /**
      * Start the connection.
