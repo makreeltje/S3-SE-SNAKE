@@ -14,7 +14,7 @@ public class Players {
     }
 
     public Player getPlayer(String id) {
-        return playerList.get(Integer.parseInt(id));
+        return playerList.stream().filter(player -> player.getSession().getId().equals(id)).findFirst().orElse(null);
     }
 
     public List<Player> getPlayerList() {
@@ -26,12 +26,6 @@ public class Players {
     }
 
     public Player getPlayerBySession(Session session) {
-
-        for (Player player : playerList) {
-            if (player.getSession().equals(session)){
-                return player;
-            }
-        }
-        return null;
+        return playerList.stream().filter(player -> player.getSession().equals(session)).findFirst().orElse(null);
     }
 }
