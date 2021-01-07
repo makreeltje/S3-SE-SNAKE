@@ -37,6 +37,18 @@ public class Game {
 
             responseMove.setCells(board.getBoard());
 
+            String string = "";
+
+            for (int i = 0; i < 40; i++) {
+                for (int j = 0; j < 75; j++) {
+                    string += board.getCellValue(i, j) + " ";
+                }
+                string += "\n";
+            }
+            System.out.println(string);
+            System.out.println();
+            System.out.println();
+
             responseMove.setPlayerId(Integer.parseInt(player.getSession().getId()));
             responseMoveList.add(responseMove);
         });

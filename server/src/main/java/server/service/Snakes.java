@@ -9,7 +9,7 @@ public class Snakes {
     public boolean move(Player player, Board board) {
         Cell cell = getNextCell(player);
         player.getSnake().addSnakePart(cell);
-        if (board.getCellValue(player.getSnake().getHeadSnake().getRow(), player.getSnake().getHeadSnake().getColumn()) == 0) {
+        if (board.getCellValue(player.getSnake().getHeadSnake().getRow(), player.getSnake().getHeadSnake().getColumn()) >= 0 && board.getCellValue(player.getSnake().getHeadSnake().getRow(), player.getSnake().getHeadSnake().getColumn()) <= 8) {
             board.setCellValue(player.getSnake().getTailSnake().getRow(), player.getSnake().getTailSnake().getColumn(), 0);
             player.getSnake().removeTailSnake();
             return false;

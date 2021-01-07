@@ -26,6 +26,8 @@ import shared.rest.Authentication;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,8 +35,9 @@ public class SnakeClient extends Application implements Observer {
 
     private static final Logger LOGGER = Logger.getLogger(SnakeClient.class.getName());
 
-    private static final int FRUITS = 3;
+    private static final int FRUITS = 20;
 
+    private static final Timer timer = new Timer();
 
     private static final double RECTANGLE_SIZE = 20;
     private static final int NR_SQUARES_HORIZONTAL = 75;
@@ -222,6 +225,8 @@ public class SnakeClient extends Application implements Observer {
     }
 
     public void keyPressed(KeyEvent keyEvent) {
+        final int[] direction = {0};
+
         switch (keyEvent.getCode()) {
             case KP_UP:
             case UP:
@@ -252,7 +257,11 @@ public class SnakeClient extends Application implements Observer {
 
     }
 
-    private void updatePosition(int playerId, int[][] cells) {
+    private synchronized void updatePosition(int playerId, int[][] cells) {
+
+        // BUG: Sometimes player cell is colored as empty cell
+        // BUG: Sometimes the snake stands still even when messages are still going
+        // BUG: When moving over itself, there will be a new fruit generated on the field FIXED
         for (int column = 0; column < NR_SQUARES_HORIZONTAL; column++) {
             for (int row = 0; row < NR_SQUARES_VERTICAL; row++) {
                 if (cells[row][column] == 0)

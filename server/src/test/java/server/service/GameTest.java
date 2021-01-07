@@ -3,6 +3,7 @@ package server.service;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import server.models.Board;
 import server.models.Player;
 import server.models.Snake;
@@ -11,6 +12,7 @@ import shared.messages.Direction;
 import javax.websocket.Session;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class GameTest {
 
@@ -24,6 +26,7 @@ class GameTest {
     void setUp() {
         this.game = new Game();
         this.board = new Board(40, 75);
+        session.getAsyncRemote().sendText("test");
         player = new Player(session, "Test user", true, new Snake());
         players.addPlayer(player);
 
@@ -35,7 +38,7 @@ class GameTest {
 
     @Test
     void updateBoard() {
-        
+        game.updateBoard(players, board);
     }
 
     @Test
