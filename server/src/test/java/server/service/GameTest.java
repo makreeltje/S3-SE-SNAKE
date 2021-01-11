@@ -38,7 +38,7 @@ class GameTest {
 
     @Test
     void updateBoard() {
-        game.updateBoard(players, board);
+
     }
 
     @Test

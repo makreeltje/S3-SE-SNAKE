@@ -5,10 +5,13 @@ import communicator.rest.SnakeCommunicatorClientREST;
 import communicator.websocket.SnakeCommunicatorWebSocket;
 import communicator.websocket.SnakeCommunicatorClientWebSocket;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
@@ -24,10 +27,7 @@ import shared.messages.response.ResponseMove;
 import shared.messages.response.ResponseRegister;
 import shared.rest.Authentication;
 
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,32 +43,38 @@ public class SnakeClient extends Application implements Observer {
     private static final int NR_SQUARES_HORIZONTAL = 75;
     private static final int NR_SQUARES_VERTICAL = 40;
 
-    private VBox mainMenu = new VBox(20);
-    private VBox loginMenu = new VBox(20);
-    private VBox registerMenu = new VBox(20);
-    private VBox playersMenu = new VBox(20);
+    private final VBox mainMenu = new VBox(20);
+    private final VBox loginMenu = new VBox(20);
+    private final VBox registerMenu = new VBox(20);
+
+    private final VBox playersMenu = new VBox(20);
+    private TableColumn<Object, String> column1 = new TableColumn("Username");
+    private TableColumn<Object, String> column2 = new TableColumn("State");
+    private final TableView tableView = new TableView();
+    private final ObservableList<PlayerView> playerViews = FXCollections.observableArrayList();
+
+    private final Map<String, Object> playerMap = new HashMap<>();
     private Scene scene;
-    private StackPane layout = new StackPane();
+    private final StackPane layout = new StackPane();
 
-    private TextField txtUsernameLogin = new TextField();
-    private TextField txtUsernameRegister = new TextField();
-    private PasswordField txtPasswordLogin = new PasswordField();
-    private PasswordField txtPasswordRegister = new PasswordField();
-    private TextField txtEmail = new TextField();
+    private final TextField txtUsernameLogin = new TextField();
+    private final TextField txtUsernameRegister = new TextField();
+    private final PasswordField txtPasswordLogin = new PasswordField();
+    private final PasswordField txtPasswordRegister = new PasswordField();
+    private final TextField txtEmail = new TextField();
 
-    private Button btnLogin = new Button("Login");
-    private Button btnRegister = new Button("Register");
-    private Button btnSignIn = new Button("Sign In");
-    private Button btnSignUp = new Button("Sign Up");
-    private Button btnSinglePlayer = new Button("Single Player");
-    private Button btnMultiPlayer = new Button("Multi Player");
-    private Button btnHistory = new Button("History");
-    private Button btnLogout = new Button("Exit");
-
-    private Label lblPlayer1 = new Label();
-    private Label lblPlayer2 = new Label();
+    private final Button btnLogin = new Button("Login");
+    private final Button btnRegister = new Button("Register");
+    private final Button btnSignIn = new Button("Sign In");
+    private final Button btnSignUp = new Button("Sign Up");
+    private final Button btnSinglePlayer = new Button("Single Player");
+    private final Button btnMultiPlayer = new Button("Multi Player");
+    private final Button btnHistory = new Button("History");
+    private final Button btnLogout = new Button("Exit");
 
     private Rectangle[][] playingFieldArea;
+
+
 
     private SnakeCommunicatorWebSocket communicatorWebSocket = null;
     private ISnakeRest communicatorREST = new SnakeCommunicatorClientREST();
@@ -160,16 +166,18 @@ public class SnakeClient extends Application implements Observer {
         mainMenu.setAlignment(Pos.CENTER);
         mainMenu.getChildren().addAll(btnSinglePlayer, btnMultiPlayer, btnHistory, btnLogout);
         mainMenu.setVisible(false);
-        playersMenu.setAlignment(Pos.CENTER);
-        playersMenu.getChildren().addAll(lblPlayer1, lblPlayer2);
-        playersMenu.setVisible(false);
+        column1.setCellValueFactory(new PropertyValueFactory<>("username"));
+        column2.setCellValueFactory(new PropertyValueFactory<>("state"));
+        tableView.getColumns().addAll(column1, column2);
+        tableView.setItems(playerViews);
+        tableView.setVisible(false);
         loginMenu.setAlignment(Pos.CENTER);
         loginMenu.getChildren().addAll(txtUsernameLogin, txtPasswordLogin, btnLogin, btnSignUp);
         loginMenu.setVisible(true);
 
 
         StackPane glass = new StackPane();
-        glass.getChildren().addAll(label, loginMenu, mainMenu, registerMenu);
+        glass.getChildren().addAll(label, loginMenu, mainMenu, registerMenu, tableView);
 
         glass.setStyle("-fx-background-color: rgba(10, 10, 10, 0.4);");
         glass.setMinWidth(scene.getWidth() - 80);
@@ -194,6 +202,9 @@ public class SnakeClient extends Application implements Observer {
 
         username = txtUsernameLogin.getText();
 
+        communicatorWebSocket = SnakeCommunicatorClientWebSocket.getInstance();
+        communicatorWebSocket.addObserver(this);
+        communicatorWebSocket.start();
 
     }
 
@@ -204,19 +215,23 @@ public class SnakeClient extends Application implements Observer {
         communicatorREST.postSignUp(new Authentication(txtUsernameRegister.getText(), txtEmail.getText(), txtPasswordRegister.getText()));
 
         username = txtUsernameRegister.getText();
+
+        communicatorWebSocket = SnakeCommunicatorClientWebSocket.getInstance();
+        communicatorWebSocket.addObserver(this);
+        communicatorWebSocket.start();
     }
 
     private void startGame(boolean singlePlayer) {
         mainMenu.setVisible(false);
 
-        //TODO: make players menu visible to know whos in lobby and whos ready, playersMenu.setVisible(true);
+        // playersMenu.setVisible(true);
 
-        layout.setVisible(false);
+        tableView.setVisible(true);
+
+        //layout.setVisible(false);
 
 
-        communicatorWebSocket = SnakeCommunicatorClientWebSocket.getInstance();
-        communicatorWebSocket.addObserver(this);
-        communicatorWebSocket.start();
+
 
         communicatorWebSocket.register(username, singlePlayer);
         communicatorWebSocket.generateFruits(FRUITS);
@@ -296,7 +311,9 @@ public class SnakeClient extends Application implements Observer {
         switch (message.getOperation()) {
             case RESPONSE_REGISTER:
                 ResponseRegister responseRegister = (ResponseRegister) messageCreator.createResult(message);
-                playerId = responseRegister.getPlayerId();
+                //playerId = responseRegister.getPlayerId();
+                playerViews.add(new PlayerView(responseRegister.getPlayerId(), responseRegister.getPlayerName(), "not ready"));
+
                 break;
             case RESPONSE_MOVE:
                 ResponseMove messageMove = (ResponseMove) messageCreator.createResult(message);

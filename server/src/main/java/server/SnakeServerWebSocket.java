@@ -104,8 +104,13 @@ public class SnakeServerWebSocket {
 
                     ResponseRegister responseRegister = new ResponseRegister();
                     responseRegister.setPlayerId(Integer.parseInt(players.getPlayerBySession(session).getSession().getId()));
+                    responseRegister.setPlayerName(players.getPlayerBySession(session).getUsername());
 
-                    session.getAsyncRemote().sendText(gson.toJson(messageCreator.createMessage(MessageOperationType.RESPONSE_REGISTER, responseRegister)));
+                    players.getPlayerList().forEach(player -> {
+                        player.getSession().getAsyncRemote().sendText(gson.toJson(messageCreator.createMessage(MessageOperationType.RESPONSE_REGISTER, responseRegister)));
+                            });
+
+                    //session.getAsyncRemote().sendText(gson.toJson(messageCreator.createMessage(MessageOperationType.RESPONSE_REGISTER, responseRegister)));
 
                     // Send the message to all clients that are subscribed to this property
                     LOGGER.log(Level.INFO, "[WebSocket send ] {0} to:", jsonMessage);
