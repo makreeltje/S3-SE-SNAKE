@@ -1,13 +1,14 @@
 package shared.messages.response;
 
 import shared.messages.BaseMessage;
+import shared.messages.Player;
 
 import java.util.List;
 
 public class ResponseRegister implements BaseMessage {
     private int playerId;
     private String playerName;
-    private List<String> playerList;
+    private List<Player> playerList;
 
     public int getPlayerId() {
         return playerId;
@@ -25,15 +26,11 @@ public class ResponseRegister implements BaseMessage {
         this.playerName = playerName;
     }
 
-    public List<String> getPlayerList() {
+    public List<Player> getPlayerList() {
         return playerList;
     }
 
-    public void addPlayerList(String item) {
-        playerList.add(item);
-    }
-
-    public void setPlayerList(List<String> playerList) {
+    public void setPlayerList(List<Player> playerList) {
         this.playerList = playerList;
     }
 }

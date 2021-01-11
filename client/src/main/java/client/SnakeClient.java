@@ -311,7 +311,6 @@ public class SnakeClient extends Application implements Observer {
         switch (message.getOperation()) {
             case RESPONSE_REGISTER:
                 ResponseRegister responseRegister = (ResponseRegister) messageCreator.createResult(message);
-                //playerId = responseRegister.getPlayerId();
                 playerViews.add(new PlayerView(responseRegister.getPlayerId(), responseRegister.getPlayerName(), "not ready"));
 
                 break;
