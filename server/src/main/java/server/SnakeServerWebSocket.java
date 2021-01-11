@@ -108,7 +108,7 @@ public class SnakeServerWebSocket {
 
                     players.getPlayerList().forEach(player -> {
                         player.getSession().getAsyncRemote().sendText(gson.toJson(messageCreator.createMessage(MessageOperationType.RESPONSE_REGISTER, responseRegister)));
-                            });
+                    });
 
                     //session.getAsyncRemote().sendText(gson.toJson(messageCreator.createMessage(MessageOperationType.RESPONSE_REGISTER, responseRegister)));
 

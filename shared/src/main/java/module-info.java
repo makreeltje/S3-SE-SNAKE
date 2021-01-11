@@ -1,5 +1,5 @@
 module shared {
-    requires com.google.gson;
+    requires gson;
     exports shared.messages;
     exports shared.messages.request;
     exports shared.messages.response;

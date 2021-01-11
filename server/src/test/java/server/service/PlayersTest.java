@@ -30,10 +30,14 @@ class PlayersTest {
 
     @Test
     void addPlayer() {
+
+        // arrange
         int expected = players.getPlayerList().size() + 1;
 
+        // act
         players.addPlayer(player);
 
+        // assert
         assertEquals(expected, players.getPlayerList().size());
     }
 
