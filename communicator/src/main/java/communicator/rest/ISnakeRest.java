@@ -1,6 +1,6 @@
 package communicator.rest;
 
-import shared.rest.Authentication;
+import shared.messages.request.RequestRegister;
 
 public interface ISnakeRest {
 
@@ -9,12 +9,12 @@ public interface ISnakeRest {
      * @param signIn player model based on input
      * @return complete user model received from server
      */
-    Authentication postSignIn(Authentication signIn);
+    RequestRegister postSignIn(RequestRegister signIn);
 
     /**
      * Post an Http request to the rest server to register a defined user
      * @param signUp player model based on input
      * @return complete user model received from server
      */
-    Authentication postSignUp(Authentication signUp);
+    RequestRegister postSignUp(RequestRegister signUp);
 }

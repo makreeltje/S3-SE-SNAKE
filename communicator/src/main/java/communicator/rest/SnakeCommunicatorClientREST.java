@@ -9,27 +9,27 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import shared.rest.Authentication;
+import shared.messages.request.RequestRegister;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SnakeCommunicatorClientREST implements ISnakeRest {
     private static final Logger LOGGER = Logger.getLogger(SnakeCommunicatorClientREST.class.getName());
-    private final String url = "http://localhost:8082/api";
+    private static final String URL = "http://localhost:8082/api";
     private final Gson gson = new Gson();
 
-    public Authentication postSignIn(Authentication signIn) {
-        final String query = url + "/auth/signin";
+    public RequestRegister postSignIn(RequestRegister signIn) {
+        final String query = URL + "/auth/signin";
         return getAuthentication(signIn, query);
     }
 
-    public Authentication postSignUp(Authentication signUp) {
-        final String query = url + "/auth/signup";
+    public RequestRegister postSignUp(RequestRegister signUp) {
+        final String query = URL + "/auth/signup";
         return getAuthentication(signUp, query);
     }
 
-    private Authentication getAuthentication(Authentication signUp, String query) {
+    private RequestRegister getAuthentication(RequestRegister signUp, String query) {
         LOGGER.log(Level.INFO,"POST: {0}", query);
 
         HttpPost httpPost = new HttpPost(query);
@@ -47,8 +47,8 @@ public class SnakeCommunicatorClientREST implements ISnakeRest {
         return executeQuery(httpPost);
     }
 
-    private Authentication executeQuery(HttpRequestBase requestBase) {
-        Authentication authentication = null;
+    private RequestRegister executeQuery(HttpRequestBase requestBase) {
+        RequestRegister authentication = null;
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault();
              CloseableHttpResponse response = httpClient.execute(requestBase)){
@@ -57,7 +57,7 @@ public class SnakeCommunicatorClientREST implements ISnakeRest {
             HttpEntity entity = response.getEntity();
             final String entityString = EntityUtils.toString(entity);
 
-            authentication = gson.fromJson(entityString, Authentication.class);
+            authentication = gson.fromJson(entityString, RequestRegister.class);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.toString());
         }

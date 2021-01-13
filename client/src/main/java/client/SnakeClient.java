@@ -35,8 +35,6 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
 
     private static final int FRUITS = 20;
 
-    private static final Timer timer = new Timer();
-
     private static final double RECTANGLE_SIZE = 20;
     private static final int NR_SQUARES_HORIZONTAL = 75;
     private static final int NR_SQUARES_VERTICAL = 40;
@@ -45,13 +43,11 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
     private final VBox loginMenu = new VBox(20);
     private final VBox registerMenu = new VBox(20);
 
-    private final VBox playersMenu = new VBox(20);
-    private TableColumn<Object, String> column1 = new TableColumn("Username");
-    private TableColumn<Object, String> column2 = new TableColumn("State");
-    private final TableView tableView = new TableView();
+    private final TableColumn<PlayerView, String> column1 = new TableColumn<>("Username");
+    private final TableColumn<PlayerView, String> column2 = new TableColumn<>("State");
+    private final TableView<PlayerView> tableView = new TableView<>();
     private final ObservableList<PlayerView> playerViews = FXCollections.observableArrayList();
 
-    private final Map<String, Object> playerMap = new HashMap<>();
     private Scene scene;
     private final StackPane layout = new StackPane();
 
@@ -74,14 +70,14 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
     private SnakeCommunicatorWebSocket communicator = null;
 
     private String username;
-    private String password;
+    private String password = txtPasswordLogin.getText();
     private String email;
     private int playerId;
 
     @Override
     public void start(Stage stage) throws Exception {
         LOGGER.info("Snake Client started");
-        stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream("snake-icon.png")));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("snake-icon.png"))));
 
         Group root = new Group();
         scene = new Scene(root, NR_SQUARES_HORIZONTAL * RECTANGLE_SIZE, NR_SQUARES_VERTICAL * RECTANGLE_SIZE);
@@ -146,7 +142,7 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
 
         btnSinglePlayer.setOnAction(event -> {
             try {
-                startGame(false);
+                startGame();
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Start game error: {}", e.getMessage());
             }
@@ -154,7 +150,7 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
 
         btnSinglePlayer.setOnAction(event -> {
             try {
-                startGame(true);
+                startGame();
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Start game error: {}", e.getMessage());
             }
@@ -194,53 +190,40 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
 
     }
 
+    @Override
     public void loginPlayer(String username, String password) {
         loginMenu.setVisible(false);
         mainMenu.setVisible(true);
 
-        //communicatorREST.postSignIn(new Authentication(txtUsernameLogin.getText(), txtPasswordLogin.getText()));
-
-        username = txtUsernameLogin.getText();
-
         communicator = SnakeCommunicatorClientWebSocket.getInstance();
         communicator.addObserver(this);
         communicator.start();
-        communicator.login(txtUsernameLogin.getText(), txtPasswordLogin.getText(), true);
+        communicator.login(username, password, true);
 
     }
 
+    @Override
     public void registerPlayer(String username, String email, String password) {
         registerMenu.setVisible(false);
         mainMenu.setVisible(true);
 
-        // communicatorREST.postSignUp(new Authentication(txtUsernameRegister.getText(), txtEmail.getText(), txtPasswordRegister.getText()));
-
-        username = txtUsernameRegister.getText();
-
         communicator = SnakeCommunicatorClientWebSocket.getInstance();
         communicator.addObserver(this);
         communicator.start();
-        communicator.register(txtUsernameRegister.getText(), txtEmail.getText(), txtPasswordRegister.getText(), true);
+        communicator.register(username, email, password, true);
     }
 
-    public void startGame(boolean singlePlayer) {
+    @Override
+    public void startGame() {
         mainMenu.setVisible(false);
-
-        // playersMenu.setVisible(true);
-
-        // tableView.setVisible(true);
-
         layout.setVisible(false);
 
-        //communicatorWebSocket.register(username, singlePlayer);
         communicator.generateFruits(FRUITS);
         scene.setOnKeyPressed(SnakeClient.this::keyPressed);
 
     }
 
     public void keyPressed(KeyEvent keyEvent) {
-        final int[] direction = {0};
-
         switch (keyEvent.getCode()) {
             case KP_UP:
             case UP:
@@ -271,7 +254,8 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
 
     }
 
-    public synchronized void updatePosition(int playerId, int[][] cells) {
+    @Override
+    public synchronized void updatePosition(int[][] cells) {
 
         for (int column = 0; column < NR_SQUARES_HORIZONTAL; column++) {
             for (int row = 0; row < NR_SQUARES_VERTICAL; row++) {
@@ -291,10 +275,12 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
         return lower <= x && x <= upper;
     }
 
+    @Override
     public void placeFruit(int row, int column) {
         playingFieldArea[row][column].setFill(Color.YELLOW);
     }
 
+    @Override
     public void endGame() {
         scene.setOnKeyPressed(null);
     }
@@ -308,15 +294,11 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
             case RESPONSE_REGISTER:
                 ResponseRegister responseRegister = (ResponseRegister) messageCreator.createResult(message);
 
-                Platform.runLater(() -> {
-                    playerViews.add(new PlayerView(responseRegister.getPlayerId(), responseRegister.getPlayerName(), "not ready"));
-                });
+                Platform.runLater(() -> playerViews.add(new PlayerView(responseRegister.getPlayerId(), responseRegister.getPlayerName(), "not ready")));
                 break;
             case RESPONSE_MOVE:
                 ResponseMove messageMove = (ResponseMove) messageCreator.createResult(message);
-                Platform.runLater(() -> {
-                    updatePosition(messageMove.getPlayerId(), messageMove.getCells());
-                });
+                Platform.runLater(() -> updatePosition(messageMove.getCells()));
                 break;
             case RESPONSE_GENERATE_FRUIT:
                 ResponseGeneratedFruit responseGeneratedFruit = (ResponseGeneratedFruit) messageCreator.createResult(message);

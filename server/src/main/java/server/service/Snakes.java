@@ -22,8 +22,6 @@ public class Snakes {
 
         Cell cell = new Cell(player.getSnake().getHeadSnake().getRow(), player.getSnake().getHeadSnake().getColumn());
 
-        // TODO: Check if cell is getting out of bounds
-
         switch (player.getDirection()) {
             case UP:
                 cell.setRow(cell.getRow() - 1);

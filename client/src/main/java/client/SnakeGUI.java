@@ -23,16 +23,14 @@ public interface SnakeGUI {
 
     /**
      * Communicate the result of a login request by the player.
-     * @param singlePlayer the decision of players play style
      */
-    void startGame(boolean singlePlayer);
+    void startGame();
 
     /**
      * Sets graphical board based on communicated board from server-side
-     * @param playerId current players id to know what cells are your's
      * @param cells complete board with snake locations
      */
-    void updatePosition(int playerId, int[][] cells);
+    void updatePosition(int[][] cells);
 
     /**
      * Places fruit pieces on board based on what is generated in the server

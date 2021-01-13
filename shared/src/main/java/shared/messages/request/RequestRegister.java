@@ -9,6 +9,20 @@ public class RequestRegister implements BaseMessage {
     private String password;
     private Boolean singlePlayer;
 
+    public RequestRegister() {
+    }
+
+    public RequestRegister(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
+    public RequestRegister(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
     public String getUsername() {
         return username;
     }

@@ -13,11 +13,9 @@ import shared.messages.BaseMessage;
 import shared.messages.MessageCreator;
 import shared.messages.MessageOperation;
 import shared.messages.MessageOperationType;
-import shared.messages.request.RequestFruit;
 import shared.messages.request.RequestMove;
 import shared.messages.request.RequestRegister;
 import shared.messages.response.ResponseRegister;
-import shared.rest.Authentication;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
@@ -27,8 +25,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static java.lang.String.format;
 
 // https://github.com/jetty-project/embedded-jetty-websocket-examples/tree/master/javax.websocket-example/src/main/java/org/eclipse/jetty/demo
 
@@ -108,19 +104,15 @@ public class SnakeServerWebSocket {
                     players.addPlayer(new Player(session, registerMessage.getUsername(), registerMessage.getSinglePlayer(), new Snake()));
 
                     if(wbMessage.getOperation() == MessageOperationType.REQUEST_LOGIN)
-                        communicatorREST.postSignIn(new Authentication(registerMessage.getUsername(), registerMessage.getPassword()));
+                        communicatorREST.postSignIn(new RequestRegister(registerMessage.getUsername(), registerMessage.getPassword()));
                     else if(wbMessage.getOperation() == MessageOperationType.REQUEST_REGISTER)
-                        communicatorREST.postSignUp(new Authentication(registerMessage.getUsername(), registerMessage.getEmail(), registerMessage.getPassword()));
+                        communicatorREST.postSignUp(new RequestRegister(registerMessage.getUsername(), registerMessage.getEmail(), registerMessage.getPassword()));
 
                     ResponseRegister responseRegister = new ResponseRegister();
                     responseRegister.setPlayerId(Integer.parseInt(players.getPlayerBySession(session).getSession().getId()));
                     responseRegister.setPlayerName(players.getPlayerBySession(session).getUsername());
 
-                    players.getPlayerList().forEach(player -> {
-                        player.getSession().getAsyncRemote().sendText(gson.toJson(messageCreator.createMessage(MessageOperationType.RESPONSE_REGISTER, responseRegister)));
-                    });
-
-                    //session.getAsyncRemote().sendText(gson.toJson(messageCreator.createMessage(MessageOperationType.RESPONSE_REGISTER, responseRegister)));
+                    players.getPlayerList().forEach(player -> player.getSession().getAsyncRemote().sendText(gson.toJson(messageCreator.createMessage(MessageOperationType.RESPONSE_REGISTER, responseRegister))));
 
                     // Send the message to all clients that are subscribed to this property
                     LOGGER.log(Level.INFO, "[WebSocket send ] {0} to:", jsonMessage);
@@ -134,7 +126,7 @@ public class SnakeServerWebSocket {
                     game.toggleReady(players, session);
 
                     if (players.getPlayerList().stream().allMatch(Player::isReady)) {
-                        game.generateFruit(players, board, FRUIT);
+                        game.generateFruit(board, FRUIT);
                         timer.schedule(new TimerTask() {
                             @Override
                             public void run() {

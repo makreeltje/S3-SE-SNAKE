@@ -2,31 +2,31 @@ package server.models;
 
 public class Board {
 
-    private int[][] board;
+    private int[][] grid;
 
     public Board(int rowCount, int columnCount) {
-        board = new int[rowCount][columnCount];
+        grid = new int[rowCount][columnCount];
         for (int c = 0; c < columnCount; c++) {
             for (int r = 0; r < rowCount; r++){
-                this.board[r][c] = 0;
+                this.grid[r][c] = 0;
             }
         }
     }
 
-    public int[][] getBoard() {
-        return board;
+    public int[][] getGrid() {
+        return grid;
     }
 
-    public void setBoard(int[][] board) {
-        this.board = board;
+    public void setGrid(int[][] grid) {
+        this.grid = grid;
     }
 
     public void setCellValue(int row, int column, int value) {
-        board[row][column] = value;
+        grid[row][column] = value;
     }
 
     public int getCellValue(int row, int column) {
-        return board[row][column];
+        return grid[row][column];
     }
 
     /**

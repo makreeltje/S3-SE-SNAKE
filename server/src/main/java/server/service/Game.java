@@ -5,9 +5,7 @@ import server.models.Board;
 import server.models.Player;
 import shared.messages.MessageCreator;
 import shared.messages.MessageOperationType;
-import shared.messages.response.ResponseGeneratedFruit;
 import shared.messages.response.ResponseMove;
-import shared.messages.response.ResponseStart;
 
 import javax.websocket.Session;
 import java.util.ArrayList;
@@ -27,27 +25,12 @@ public class Game {
         players.getPlayerList().forEach(player -> {
             ResponseMove responseMove = new ResponseMove();
             if (snakes.move(player, board)){
-//                responseMove.setAteFruit(true);
-                generateFruit(players, board, 1);
-            } else {
-//                responseMove.setAteFruit(false);
+                generateFruit(board, 1);
             }
 
             player.getSnake().getSnakeParts().forEach(c -> board.setCellValue(c.getRow(), c.getColumn(), Integer.parseInt(player.getSession().getId())));
 
-            responseMove.setCells(board.getBoard());
-
-            String string = "";
-
-/*            for (int i = 0; i < 40; i++) {
-                for (int j = 0; j < 75; j++) {
-                    string += board.getCellValue(i, j) + " ";
-                }
-                string += "\n";
-            }
-            System.out.println(string);
-            System.out.println();
-            System.out.println();*/
+            responseMove.setCells(board.getGrid());
 
             responseMove.setPlayerId(Integer.parseInt(player.getSession().getId()));
             responseMoveList.add(responseMove);
@@ -60,7 +43,7 @@ public class Game {
         });
     }
 
-    public void generateFruit(Players players, Board board, int fruitCount) {
+    public void generateFruit(Board board, int fruitCount) {
 
         for (int i = 0; i < fruitCount; i++) {
             boolean fruitPlaced = false;
@@ -80,17 +63,6 @@ public class Game {
         Player player = players.getPlayerBySession(session);
 
         player.setReady(!player.isReady());
-
-        //TODO: something broke, not sure
-        ResponseStart responseStart = new ResponseStart();
-
-//        players.getPlayerList().forEach(p -> {
-//            responseStart.addId(Integer.parseInt(p.getSession().getId()));
-//            responseStart.addName(p.getUsername());
-//            responseStart.addReady(p.isReady());
-//
-//            p.getSession().getAsyncRemote().sendText(GSON.toJson(MESSAGE_CREATOR.createMessage(MessageOperationType.RESPONSE_START, responseStart)));
-//        });
     }
 
     public int getTicks() {
