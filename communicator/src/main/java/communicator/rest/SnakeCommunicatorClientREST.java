@@ -21,26 +21,16 @@ public class SnakeCommunicatorClientREST implements ISnakeRest {
 
     public Authentication postSignIn(Authentication signIn) {
         final String query = url + "/auth/signin";
-        LOGGER.log(Level.INFO,"POST: {}", query);
-
-        HttpPost httpPost = new HttpPost(query);
-        httpPost.addHeader("content-type", "application/json");
-
-        StringEntity params;
-
-        try {
-            params = new StringEntity(gson.toJson(signIn));
-            httpPost.setEntity(params);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.toString());
-        }
-
-        return executeQuery(httpPost);
+        return getAuthentication(signIn, query);
     }
 
     public Authentication postSignUp(Authentication signUp) {
         final String query = url + "/auth/signup";
-        LOGGER.log(Level.INFO,"POST: {}", query);
+        return getAuthentication(signUp, query);
+    }
+
+    private Authentication getAuthentication(Authentication signUp, String query) {
+        LOGGER.log(Level.INFO,"POST: {0}", query);
 
         HttpPost httpPost = new HttpPost(query);
         httpPost.addHeader("content-type", "application/json");
@@ -62,7 +52,7 @@ public class SnakeCommunicatorClientREST implements ISnakeRest {
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault();
              CloseableHttpResponse response = httpClient.execute(requestBase)){
-            LOGGER.log(Level.INFO, "Status: {}", response.getStatusLine());
+            LOGGER.log(Level.INFO, "Status: {0}", response.getStatusLine());
 
             HttpEntity entity = response.getEntity();
             final String entityString = EntityUtils.toString(entity);

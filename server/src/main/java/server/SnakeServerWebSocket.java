@@ -2,6 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import communicator.rest.ISnakeRest;
+import communicator.rest.SnakeCommunicatorClientREST;
 import server.models.Board;
 import server.models.Player;
 import server.models.Snake;
@@ -15,6 +17,7 @@ import shared.messages.request.RequestFruit;
 import shared.messages.request.RequestMove;
 import shared.messages.request.RequestRegister;
 import shared.messages.response.ResponseRegister;
+import shared.rest.Authentication;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
@@ -54,6 +57,7 @@ public class SnakeServerWebSocket {
     private static final Game game = new Game();
     private static final Board board = new Board(40, 75);
     private MessageCreator messageCreator = new MessageCreator();
+    private ISnakeRest communicatorREST = new SnakeCommunicatorClientREST();
 
     @OnOpen
     public void onConnect(Session session) {
@@ -97,10 +101,16 @@ public class SnakeServerWebSocket {
         // Operation defined in message
         if (null != wbMessage.getOperation()) {
             switch (wbMessage.getOperation()) {
+                case REQUEST_LOGIN:
                 case REQUEST_REGISTER:
                     RequestRegister registerMessage = (RequestRegister) message;
                     // Register property if not registered yet
                     players.addPlayer(new Player(session, registerMessage.getUsername(), registerMessage.getSinglePlayer(), new Snake()));
+
+                    if(wbMessage.getOperation() == MessageOperationType.REQUEST_LOGIN)
+                        communicatorREST.postSignIn(new Authentication(registerMessage.getUsername(), registerMessage.getPassword()));
+                    else if(wbMessage.getOperation() == MessageOperationType.REQUEST_REGISTER)
+                        communicatorREST.postSignUp(new Authentication(registerMessage.getUsername(), registerMessage.getEmail(), registerMessage.getPassword()));
 
                     ResponseRegister responseRegister = new ResponseRegister();
                     responseRegister.setPlayerId(Integer.parseInt(players.getPlayerBySession(session).getSession().getId()));

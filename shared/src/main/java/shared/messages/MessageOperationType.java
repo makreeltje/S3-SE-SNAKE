@@ -11,6 +11,7 @@ package shared.messages;
  */
 public enum MessageOperationType {
     REQUEST_REGISTER,         // Register a property (client only)
+    REQUEST_LOGIN,
     REQUEST_MOVE,
     REQUEST_READY,
     REQUEST_GENERATE_FRUIT,

@@ -20,7 +20,7 @@ public class Game {
     private static final MessageCreator MESSAGE_CREATOR = new MessageCreator();
 
     private Snakes snakes = new Snakes();
-    private int ticks = 100;
+    private int ticks = 500;
 
     public void updateBoard(Players players, Board board) {
         List<ResponseMove> responseMoveList = new ArrayList<>();
@@ -39,7 +39,7 @@ public class Game {
 
             String string = "";
 
-            for (int i = 0; i < 40; i++) {
+/*            for (int i = 0; i < 40; i++) {
                 for (int j = 0; j < 75; j++) {
                     string += board.getCellValue(i, j) + " ";
                 }
@@ -47,7 +47,7 @@ public class Game {
             }
             System.out.println(string);
             System.out.println();
-            System.out.println();
+            System.out.println();*/
 
             responseMove.setPlayerId(Integer.parseInt(player.getSession().getId()));
             responseMoveList.add(responseMove);

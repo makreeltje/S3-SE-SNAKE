@@ -17,6 +17,7 @@ public class MessageCreator {
     public BaseMessage createResult(MessageOperation message) {
         BaseMessage result;
         switch (message.getOperation()) {
+            case REQUEST_LOGIN:
             case REQUEST_REGISTER:
                 result = gson.fromJson(message.getProperty(), RequestRegister.class);
                 break;

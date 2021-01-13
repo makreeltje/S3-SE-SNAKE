@@ -32,9 +32,19 @@ public interface ISnakeWebsocket {
     /**
      * Register a property.
      * @param username
+     * @param email
+     * @param password
      * @param singlePlayer
      */
-    void register(String username, boolean singlePlayer);
+    void register(String username, String email, String password, boolean singlePlayer);
+
+    /**
+     * Login a property
+     * @param username
+     * @param password
+     * @param singlePlayer
+     */
+    void login(String username, String password, boolean singlePlayer);
 
     /**
      * Move snake

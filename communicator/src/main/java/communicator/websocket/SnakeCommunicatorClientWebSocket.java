@@ -116,14 +116,27 @@ public class SnakeCommunicatorClientWebSocket extends SnakeCommunicatorWebSocket
     }
 
     @Override
-    public void register(String username, boolean singlePlayer) {
+    public void register(String username, String email, String password, boolean singlePlayer) {
         RequestRegister requestRegister = new RequestRegister();
 
         requestRegister.setUsername(username);
+        requestRegister.setEmail(email);
+        requestRegister.setPassword(password);
         requestRegister.setSinglePlayer(singlePlayer);
 
         sendMessageToServer(messageCreator.createMessage(MessageOperationType.REQUEST_REGISTER, requestRegister));
 
+    }
+
+    @Override
+    public void login(String username, String password, boolean singlePlayer) {
+        RequestRegister requestRegister = new RequestRegister();
+
+        requestRegister.setUsername(username);
+        requestRegister.setPassword(password);
+        requestRegister.setSinglePlayer(singlePlayer);
+
+        sendMessageToServer(messageCreator.createMessage(MessageOperationType.REQUEST_LOGIN, requestRegister));
     }
 
     @Override

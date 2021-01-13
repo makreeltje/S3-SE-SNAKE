@@ -5,6 +5,7 @@ import communicator.rest.SnakeCommunicatorClientREST;
 import communicator.websocket.SnakeCommunicatorWebSocket;
 import communicator.websocket.SnakeCommunicatorClientWebSocket;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -77,7 +78,7 @@ public class SnakeClient extends Application implements Observer {
 
 
     private SnakeCommunicatorWebSocket communicatorWebSocket = null;
-    private ISnakeRest communicatorREST = new SnakeCommunicatorClientREST();
+
 
 
     private String username;
@@ -198,13 +199,14 @@ public class SnakeClient extends Application implements Observer {
         loginMenu.setVisible(false);
         mainMenu.setVisible(true);
 
-        communicatorREST.postSignIn(new Authentication(txtUsernameLogin.getText(), txtPasswordLogin.getText()));
+        //communicatorREST.postSignIn(new Authentication(txtUsernameLogin.getText(), txtPasswordLogin.getText()));
 
         username = txtUsernameLogin.getText();
 
         communicatorWebSocket = SnakeCommunicatorClientWebSocket.getInstance();
         communicatorWebSocket.addObserver(this);
         communicatorWebSocket.start();
+        communicatorWebSocket.login(txtUsernameLogin.getText(), txtPasswordLogin.getText(), true);
 
     }
 
@@ -212,13 +214,14 @@ public class SnakeClient extends Application implements Observer {
         registerMenu.setVisible(false);
         mainMenu.setVisible(true);
 
-        communicatorREST.postSignUp(new Authentication(txtUsernameRegister.getText(), txtEmail.getText(), txtPasswordRegister.getText()));
+        // communicatorREST.postSignUp(new Authentication(txtUsernameRegister.getText(), txtEmail.getText(), txtPasswordRegister.getText()));
 
         username = txtUsernameRegister.getText();
 
         communicatorWebSocket = SnakeCommunicatorClientWebSocket.getInstance();
         communicatorWebSocket.addObserver(this);
         communicatorWebSocket.start();
+        communicatorWebSocket.register(txtUsernameRegister.getText(), txtEmail.getText(), txtPasswordRegister.getText(), true);
     }
 
     private void startGame(boolean singlePlayer) {
@@ -226,14 +229,11 @@ public class SnakeClient extends Application implements Observer {
 
         // playersMenu.setVisible(true);
 
-        tableView.setVisible(true);
+        // tableView.setVisible(true);
 
-        //layout.setVisible(false);
+        layout.setVisible(false);
 
-
-
-
-        communicatorWebSocket.register(username, singlePlayer);
+        //communicatorWebSocket.register(username, singlePlayer);
         communicatorWebSocket.generateFruits(FRUITS);
         scene.setOnKeyPressed(SnakeClient.this::keyPressed);
 
@@ -274,17 +274,14 @@ public class SnakeClient extends Application implements Observer {
 
     private synchronized void updatePosition(int playerId, int[][] cells) {
 
-        // BUG: Sometimes player cell is colored as empty cell
-        // BUG: Sometimes the snake stands still even when messages are still going
-        // BUG: When moving over itself, there will be a new fruit generated on the field FIXED
         for (int column = 0; column < NR_SQUARES_HORIZONTAL; column++) {
             for (int row = 0; row < NR_SQUARES_VERTICAL; row++) {
                 if (cells[row][column] == 0)
                     playingFieldArea[column][row].setFill(Color.web("#424242"));
                 else if (cells[row][column] == this.playerId)
-                    playingFieldArea[column][row].setFill(Color.GREEN);
+                    playingFieldArea[column][row].setFill(Color.RED);
                 else if (isBetween(cells[row][column], 1, 8))
-                    playingFieldArea[column][row].setFill(Color.DARKGREEN);
+                    playingFieldArea[column][row].setFill(Color.BLUE);
                 else if (cells[row][column] == 9)
                     playingFieldArea[column][row].setFill(Color.YELLOW);
             }
@@ -311,18 +308,24 @@ public class SnakeClient extends Application implements Observer {
         switch (message.getOperation()) {
             case RESPONSE_REGISTER:
                 ResponseRegister responseRegister = (ResponseRegister) messageCreator.createResult(message);
-                playerViews.add(new PlayerView(responseRegister.getPlayerId(), responseRegister.getPlayerName(), "not ready"));
 
+                Platform.runLater(() -> {
+                    playerViews.add(new PlayerView(responseRegister.getPlayerId(), responseRegister.getPlayerName(), "not ready"));
+                });
                 break;
             case RESPONSE_MOVE:
                 ResponseMove messageMove = (ResponseMove) messageCreator.createResult(message);
-                updatePosition(messageMove.getPlayerId(), messageMove.getCells());
+                Platform.runLater(() -> {
+                    updatePosition(messageMove.getPlayerId(), messageMove.getCells());
+                });
                 break;
             case RESPONSE_GENERATE_FRUIT:
                 ResponseGeneratedFruit responseGeneratedFruit = (ResponseGeneratedFruit) messageCreator.createResult(message);
-                for (int i = 0; i < responseGeneratedFruit.getColumn().size(); i++) {
-                    placeFruit(responseGeneratedFruit.getRow().get(i), responseGeneratedFruit.getColumn().get(i));
-                }
+                Platform.runLater(() -> {
+                    for (int i = 0; i < responseGeneratedFruit.getColumn().size(); i++) {
+                        placeFruit(responseGeneratedFruit.getRow().get(i), responseGeneratedFruit.getColumn().get(i));
+                    }
+                });
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + message.getOperation());
