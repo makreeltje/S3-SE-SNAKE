@@ -5,7 +5,7 @@
  */
 package communicator.websocket;
 
-import shared.messages.Direction;
+import shared.models.Direction;
 
 /**
  * Interface of Communicator in order to 

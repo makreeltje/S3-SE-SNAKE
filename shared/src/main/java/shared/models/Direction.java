@@ -1,4 +1,4 @@
-package shared.messages;
+package shared.models;
 
 public enum Direction {
     UP,

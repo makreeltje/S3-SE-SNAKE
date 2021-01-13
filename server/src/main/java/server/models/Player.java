@@ -1,6 +1,6 @@
 package server.models;
 
-import shared.messages.Direction;
+import shared.models.Direction;
 
 import javax.websocket.Session;
 

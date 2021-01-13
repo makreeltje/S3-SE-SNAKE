@@ -1,7 +1,5 @@
 package client;
 
-import communicator.rest.ISnakeRest;
-import communicator.rest.SnakeCommunicatorClientREST;
 import communicator.websocket.SnakeCommunicatorWebSocket;
 import communicator.websocket.SnakeCommunicatorClientWebSocket;
 import javafx.application.Application;
@@ -20,19 +18,18 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import shared.messages.Direction;
+import shared.models.Direction;
 import shared.messages.MessageCreator;
 import shared.messages.MessageOperation;
 import shared.messages.response.ResponseGeneratedFruit;
 import shared.messages.response.ResponseMove;
 import shared.messages.response.ResponseRegister;
-import shared.rest.Authentication;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SnakeClient extends Application implements Observer {
+public class SnakeClient extends Application implements Observer, SnakeGUI {
 
     private static final Logger LOGGER = Logger.getLogger(SnakeClient.class.getName());
 
@@ -74,14 +71,11 @@ public class SnakeClient extends Application implements Observer {
     private final Button btnLogout = new Button("Exit");
 
     private Rectangle[][] playingFieldArea;
-
-
-
-    private SnakeCommunicatorWebSocket communicatorWebSocket = null;
-
-
+    private SnakeCommunicatorWebSocket communicator = null;
 
     private String username;
+    private String password;
+    private String email;
     private int playerId;
 
     @Override
@@ -114,7 +108,9 @@ public class SnakeClient extends Application implements Observer {
 
         btnLogin.setOnAction(event -> {
             try {
-                loginPlayer();
+                username = txtUsernameLogin.getText();
+                password = txtPasswordLogin.getText();
+                loginPlayer(username, password);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Register Player error: {}", e.getMessage());
             }
@@ -122,7 +118,10 @@ public class SnakeClient extends Application implements Observer {
 
         btnRegister.setOnAction(event -> {
             try {
-                registerPlayer();
+                username = txtUsernameRegister.getText();
+                email = txtEmail.getText();
+                password = txtPasswordRegister.getText();
+                registerPlayer(username, email, password);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Register Player error: {}", e.getMessage());
             }
@@ -195,7 +194,7 @@ public class SnakeClient extends Application implements Observer {
 
     }
 
-    private void loginPlayer() {
+    public void loginPlayer(String username, String password) {
         loginMenu.setVisible(false);
         mainMenu.setVisible(true);
 
@@ -203,14 +202,14 @@ public class SnakeClient extends Application implements Observer {
 
         username = txtUsernameLogin.getText();
 
-        communicatorWebSocket = SnakeCommunicatorClientWebSocket.getInstance();
-        communicatorWebSocket.addObserver(this);
-        communicatorWebSocket.start();
-        communicatorWebSocket.login(txtUsernameLogin.getText(), txtPasswordLogin.getText(), true);
+        communicator = SnakeCommunicatorClientWebSocket.getInstance();
+        communicator.addObserver(this);
+        communicator.start();
+        communicator.login(txtUsernameLogin.getText(), txtPasswordLogin.getText(), true);
 
     }
 
-    private void registerPlayer() {
+    public void registerPlayer(String username, String email, String password) {
         registerMenu.setVisible(false);
         mainMenu.setVisible(true);
 
@@ -218,13 +217,13 @@ public class SnakeClient extends Application implements Observer {
 
         username = txtUsernameRegister.getText();
 
-        communicatorWebSocket = SnakeCommunicatorClientWebSocket.getInstance();
-        communicatorWebSocket.addObserver(this);
-        communicatorWebSocket.start();
-        communicatorWebSocket.register(txtUsernameRegister.getText(), txtEmail.getText(), txtPasswordRegister.getText(), true);
+        communicator = SnakeCommunicatorClientWebSocket.getInstance();
+        communicator.addObserver(this);
+        communicator.start();
+        communicator.register(txtUsernameRegister.getText(), txtEmail.getText(), txtPasswordRegister.getText(), true);
     }
 
-    private void startGame(boolean singlePlayer) {
+    public void startGame(boolean singlePlayer) {
         mainMenu.setVisible(false);
 
         // playersMenu.setVisible(true);
@@ -234,7 +233,7 @@ public class SnakeClient extends Application implements Observer {
         layout.setVisible(false);
 
         //communicatorWebSocket.register(username, singlePlayer);
-        communicatorWebSocket.generateFruits(FRUITS);
+        communicator.generateFruits(FRUITS);
         scene.setOnKeyPressed(SnakeClient.this::keyPressed);
 
     }
@@ -246,25 +245,25 @@ public class SnakeClient extends Application implements Observer {
             case KP_UP:
             case UP:
             case W:
-                communicatorWebSocket.move(Direction.UP);
+                communicator.move(Direction.UP);
                 break;
             case KP_DOWN:
             case DOWN:
             case S:
-                communicatorWebSocket.move(Direction.DOWN);
+                communicator.move(Direction.DOWN);
                 break;
             case KP_LEFT:
             case LEFT:
             case A:
-                communicatorWebSocket.move(Direction.LEFT);
+                communicator.move(Direction.LEFT);
                 break;
             case KP_RIGHT:
             case RIGHT:
             case D:
-                communicatorWebSocket.move(Direction.RIGHT);
+                communicator.move(Direction.RIGHT);
                 break;
             case SPACE:
-                communicatorWebSocket.toggleReady();
+                communicator.toggleReady();
                 break;
             default:
                 break;
@@ -272,7 +271,7 @@ public class SnakeClient extends Application implements Observer {
 
     }
 
-    private synchronized void updatePosition(int playerId, int[][] cells) {
+    public synchronized void updatePosition(int playerId, int[][] cells) {
 
         for (int column = 0; column < NR_SQUARES_HORIZONTAL; column++) {
             for (int row = 0; row < NR_SQUARES_VERTICAL; row++) {
@@ -292,7 +291,7 @@ public class SnakeClient extends Application implements Observer {
         return lower <= x && x <= upper;
     }
 
-    private void placeFruit(int row, int column) {
+    public void placeFruit(int row, int column) {
         playingFieldArea[row][column].setFill(Color.YELLOW);
     }
 

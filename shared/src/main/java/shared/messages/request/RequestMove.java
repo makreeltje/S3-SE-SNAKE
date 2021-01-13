@@ -1,7 +1,7 @@
 package shared.messages.request;
 
 import shared.messages.BaseMessage;
-import shared.messages.Direction;
+import shared.models.Direction;
 
 public class RequestMove implements BaseMessage {
 

@@ -1,4 +1,4 @@
-package shared.messages;
+package shared.models;
 
 public class Player {
     private int id;

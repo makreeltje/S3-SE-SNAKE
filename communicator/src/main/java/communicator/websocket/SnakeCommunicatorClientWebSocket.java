@@ -8,6 +8,7 @@ import shared.messages.request.RequestFruit;
 import shared.messages.request.RequestMove;
 import shared.messages.request.RequestRegister;
 import shared.messages.request.RequestStart;
+import shared.models.Direction;
 
 import javax.websocket.*;
 import java.io.IOException;

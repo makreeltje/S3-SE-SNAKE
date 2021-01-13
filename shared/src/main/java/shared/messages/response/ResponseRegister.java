@@ -1,7 +1,7 @@
 package shared.messages.response;
 
 import shared.messages.BaseMessage;
-import shared.messages.Player;
+import shared.models.Player;
 
 import java.util.List;
 
