@@ -21,7 +21,7 @@
         <mavenVersion>3.8.0</mavenVersion>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <sonar.junit.reportPaths>${basedir}/target/test-classes</sonar.junit.reportPaths>
+        <sonar.junit.reportPaths>${basedir}/server/target/test-classes</sonar.junit.reportPaths>
         <sonar.host.url>https://sonarqube.meelsnet.nl/</sonar.host.url>
     </properties>
 

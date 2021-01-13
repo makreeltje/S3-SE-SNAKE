@@ -17,8 +17,8 @@ public class Game {
     private static final Gson GSON = new Gson();
     private static final MessageCreator MESSAGE_CREATOR = new MessageCreator();
 
-    private Snakes snakes = new Snakes();
-    private int ticks = 500;
+    private final Snakes snakes = new Snakes();
+    private static final int TICKS = 500;
 
     public void updateBoard(Players players, Board board) {
         List<ResponseMove> responseMoveList = new ArrayList<>();
@@ -38,7 +38,11 @@ public class Game {
 
         players.getPlayerList().forEach(player -> {
             for (ResponseMove responseMove: responseMoveList) {
-                player.getSession().getAsyncRemote().sendText(GSON.toJson(MESSAGE_CREATOR.createMessage(MessageOperationType.RESPONSE_MOVE, responseMove)));
+                try {
+                    player.getSession().getAsyncRemote().sendText(GSON.toJson(MESSAGE_CREATOR.createMessage(MessageOperationType.RESPONSE_MOVE, responseMove)));
+                } catch (Exception e) {
+                    e.getMessage();
+                }
             }
         });
     }
@@ -66,18 +70,6 @@ public class Game {
     }
 
     public int getTicks() {
-        return ticks;
-    }
-
-    public void setTicks(int ticks) {
-        this.ticks = ticks;
-    }
-
-    public Snakes getSnakes() {
-        return snakes;
-    }
-
-    public void setSnakes(Snakes snakes) {
-        this.snakes = snakes;
+        return TICKS;
     }
 }
