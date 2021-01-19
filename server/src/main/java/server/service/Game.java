@@ -18,7 +18,7 @@ public class Game {
     private static final MessageCreator MESSAGE_CREATOR = new MessageCreator();
 
     private final Snakes snakes = new Snakes();
-    private static final int TICKS = 500;
+    private static final int TICKS = 250;
 
     public void updateBoard(Players players, Board board) {
         List<ResponseMove> responseMoveList = new ArrayList<>();

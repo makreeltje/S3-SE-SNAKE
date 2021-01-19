@@ -61,7 +61,7 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
     private final Button btnRegister = new Button("Register");
     private final Button btnSignIn = new Button("Sign In");
     private final Button btnSignUp = new Button("Sign Up");
-    private final Button btnSinglePlayer = new Button("Single Player");
+    private final Button btnSinglePlayer = new Button("Play");
     private final Button btnMultiPlayer = new Button("Multi Player");
     private final Button btnHistory = new Button("History");
     private final Button btnLogout = new Button("Exit");
@@ -160,7 +160,7 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
         registerMenu.getChildren().addAll(txtUsernameRegister, txtEmail, txtPasswordRegister, btnRegister, btnSignIn);
         registerMenu.setVisible(false);
         mainMenu.setAlignment(Pos.CENTER);
-        mainMenu.getChildren().addAll(btnSinglePlayer, btnMultiPlayer, btnHistory, btnLogout);
+        mainMenu.getChildren().addAll(btnSinglePlayer, btnHistory, btnLogout);
         mainMenu.setVisible(false);
         column1.setCellValueFactory(new PropertyValueFactory<>("username"));
         column2.setCellValueFactory(new PropertyValueFactory<>("state"));
@@ -257,14 +257,18 @@ public class SnakeClient extends Application implements Observer, SnakeGUI {
     @Override
     public synchronized void updatePosition(int[][] cells) {
 
+
+
         for (int column = 0; column < NR_SQUARES_HORIZONTAL; column++) {
             for (int row = 0; row < NR_SQUARES_VERTICAL; row++) {
                 if (cells[row][column] == 0)
                     playingFieldArea[column][row].setFill(Color.web("#424242"));
-                else if (cells[row][column] == this.playerId)
+                else if (cells[row][column] == 1)
                     playingFieldArea[column][row].setFill(Color.RED);
-                else if (isBetween(cells[row][column], 1, 8))
+                else if (cells[row][column] == 2)
                     playingFieldArea[column][row].setFill(Color.BLUE);
+                else if (isBetween(cells[row][column], 3, 8))
+                    playingFieldArea[column][row].setFill(Color.GREEN);
                 else if (cells[row][column] == 9)
                     playingFieldArea[column][row].setFill(Color.YELLOW);
             }
