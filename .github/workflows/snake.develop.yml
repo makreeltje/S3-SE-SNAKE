@@ -19,18 +19,6 @@ jobs:
       run: mvn -B clean package -DskipTests
     - name: Maven Verify
       run: mvn -B clean verify -Pintegration-test
-    - name: Setup sonarqube
-      uses: warchant/setup-sonar-scanner@v3
-    - name: Run sonarscanner
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: sonar-scanner
-        -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
-        -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
-        -Dsonar.projectKey=SnakeXI
-        -Dsonar.tests=test
-        -Dsonar.sourceEncoding=UTF-8
-
         
   sonar:
     name: SonarQube
@@ -49,3 +37,5 @@ jobs:
         -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
         -Dsonar.projectKey=SnakeXI
         -Dsonar.sourceEncoding=UTF-8
+        -Dforce.zero.coverage=true
+        -Dsonar.verbose=false

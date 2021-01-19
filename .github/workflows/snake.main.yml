@@ -36,6 +36,7 @@ jobs:
         -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }}
         -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
         -Dsonar.projectKey=SnakeXI
+        -Dforce.zero.coverage=true
         -Dsonar.sourceEncoding=UTF-8
         
   build:

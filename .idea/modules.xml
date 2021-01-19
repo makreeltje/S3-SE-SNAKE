@@ -4,7 +4,10 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/S3-SE-SNAKE.iml" filepath="$PROJECT_DIR$/S3-SE-SNAKE.iml" />
       <module fileurl="file://$PROJECT_DIR$/client/client.iml" filepath="$PROJECT_DIR$/client/client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/communicator/communicator.iml" filepath="$PROJECT_DIR$/communicator/communicator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/restserver/restserver.iml" filepath="$PROJECT_DIR$/restserver/restserver.iml" />
       <module fileurl="file://$PROJECT_DIR$/server/server.iml" filepath="$PROJECT_DIR$/server/server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/shared/shared.iml" filepath="$PROJECT_DIR$/shared/shared.iml" />
     </modules>
   </component>
 </project>
