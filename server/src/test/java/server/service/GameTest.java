@@ -213,7 +213,7 @@ class GameTest {
 
     @Test
     void getTicks() {
-        int expected = 500;
+        int expected = 250;
 
         int actual = game.getTicks();
 
